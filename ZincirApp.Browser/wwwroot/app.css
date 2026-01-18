@@ -1,0 +1,66 @@
+﻿:root {
+    --bg-dark: #121212;
+    --text-white: #ffffff;
+    --zincir-red: #992222;
+    --zincir-blue: #222299;
+}
+
+.avalonia-splash {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: var(--bg-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.splash-container {
+    text-align: center;
+    width: 200px;
+}
+
+.main-logo {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 20px;
+}
+
+.brand-text {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-white);
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 0.5rem;
+    margin-bottom: 30px;
+    text-indent: 0.5rem;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--zincir-red), var(--zincir-blue));
+    border-radius: 2px;
+    animation: loading-anim 1.5s infinite ease-in-out;
+}
+
+@keyframes loading-anim {
+    0% { transform: translateX(-100%); width: 30%; }
+    50% { width: 60%; }
+    100% { transform: translateX(250%); width: 30%; }
+}
+
+.avalonia-splash.splash-close {
+    opacity: 0;
+    pointer-events: none;
+}
