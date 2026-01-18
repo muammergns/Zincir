@@ -1,6 +1,7 @@
 # Zincir
 
-![Ziyaretçi Sayacı](https://komarev.com/ghpvc/?user=muammergns&repo=Zincir&color=blue&style=flat-square)
+![Badge](https://hitscounter.dev/api/hit?url=https%3A%2F%2Fgithub.com%2Fmuammergns%2FZincir%2F&label=Visit&icon=award&color=%23198754&message=&style=for-the-badge&tz=Asia%2FIstanbul)
+
 
 **Zincir**, .NET 10 ve Avalonia UI ile geliştirilen, cross platform verimlilik uygulamasıdır.
 
