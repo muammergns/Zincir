@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="Avalonia"/>
+        <PackageReference Include="Avalonia.Controls.ItemsRepeater" />
         <PackageReference Include="Avalonia.Themes.Fluent"/>
         <PackageReference Include="Avalonia.Fonts.Inter"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
@@ -20,6 +21,15 @@
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm"/>
+        <PackageReference Include="Material.Avalonia" />
+        <PackageReference Include="Material.Icons.Avalonia" />
+        <PackageReference Include="MessageBox.Avalonia" />
+        <PackageReference Include="MessageBox.Avalonia.Markdown" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
     
     <ItemGroup>
@@ -32,5 +42,20 @@
         <None Update="Assets\chain_icon.svg">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Update="Assets\UiTexts.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>UiTexts.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="Assets\UiTexts.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>UiTexts.resx</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>
