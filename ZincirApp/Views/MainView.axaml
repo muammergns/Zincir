@@ -4,13 +4,32 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ZincirApp.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="ZincirApp.Views.MainView"
+             x:Class="ZincirApp.Views.MainView" Padding="4"
              x:DataType="vm:MainViewModel">
   <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
-         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
     <vm:MainViewModel />
   </Design.DataContext>
 
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <SplitView Name="LeftDrawer" IsPaneOpen="True" OpenPaneLength="250" PanePlacement="Left" DisplayMode="CompactInline">
+        <SplitView.Pane>
+            <DockPanel Background="{DynamicResource MaterialPaperBrush}">
+                <Border Classes="Card" Margin="0,0,4,0">
+                    <ContentControl Name="LeftContent"/>
+                </Border>
+            </DockPanel>
+        </SplitView.Pane>
+        <SplitView.Content>
+            <DockPanel Background="{DynamicResource MaterialPaperBrush}" VerticalSpacing="4">
+                <Border Classes="Card" Padding="0"  DockPanel.Dock="Top">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Left" Classes="Flat" Name="LeftPaneToggleButton"/>
+                        <TextBlock Name="CenterDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </DockPanel>
+                </Border>
+                <Border Classes="Card" >
+                    <ContentControl Name="CenterContent"/>
+                </Border>
+            </DockPanel>
+        </SplitView.Content>
+    </SplitView>
 </UserControl>

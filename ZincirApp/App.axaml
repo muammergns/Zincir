@@ -18,7 +18,11 @@
             <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="BoxShadow" Value="0 1 4 0 #1A000000"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
+        <Style Selector="Border.Back">
+            <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}"/>
+            <Setter Property="Padding" Value="4"/>
         </Style>
         <Style Selector="ToggleButton:checked">
             <!-- MaterialTheme, ToggleButton checked için renklendirmede sorun çıkarıyor. -->
@@ -26,4 +30,12 @@
             <Setter Property="Foreground" Value="{DynamicResource MaterialSecondaryDarkForegroundBrush}"/>
         </Style>
     </Application.Styles>
+    <Application.Resources>
+         <ResourceDictionary>
+             <ResourceDictionary.MergedDictionaries>
+                 <MergeResourceInclude Source="CustomControls/IndicatorBox.axaml" /> 
+                 <MergeResourceInclude Source="CustomControls/IconButton.axaml"/>
+             </ResourceDictionary.MergedDictionaries>
+         </ResourceDictionary>
+    </Application.Resources>
 </Application>

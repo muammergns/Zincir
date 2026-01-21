@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:customControls="clr-namespace:ZincirApp.CustomControls"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
+             x:Class="ZincirApp.Views.NavigationView">
+    <Grid RowDefinitions="*, Auto, Auto" RowSpacing="10">
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Vertical" Spacing="10">
+                <customControls:IconButton Kind="CalendarToday" Content="Günüm" Name="TodayViewButton"/>
+                <customControls:IconButton Kind="CalendarTask" Content="Görevler" Name="TodoViewButton"/>
+                <customControls:IconButton Kind="TrackChanges" Content="Alışkanlıklar" Name="HabitViewButton"/>
+                <customControls:IconButton Kind="Timer" Content="Pomodoro" Name="PomodoroViewButton"/>
+            </StackPanel>
+        </ScrollViewer>
+        <customControls:IconButton Kind="Settings" Grid.Row="1" Content="Ayarlar" Name="SettingViewButton"/>
+        <customControls:IconButton Kind="JewelCaseOutline" Grid.Row="2" Content="Kasa" Name="DatabaseSelectButton"/>
+    </Grid>
+</UserControl>

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="using:ZincirApp.Views"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" MinWidth="300" MinHeight="300"
         x:Class="ZincirApp.Views.MainWindow"
         Icon="/Assets/chain_icon.ico"
         Title="Zincir">

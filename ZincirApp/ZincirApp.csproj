@@ -58,4 +58,8 @@
         <DependentUpon>UiTexts.resx</DependentUpon>
       </Compile>
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="CustomControls\" />
+    </ItemGroup>
 </Project>
