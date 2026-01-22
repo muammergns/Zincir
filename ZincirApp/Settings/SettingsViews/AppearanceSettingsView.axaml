@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="450"
+             xmlns:templates="clr-namespace:ZincirApp.Templates"
+             xmlns:ui="clr-namespace:ZincirApp.Locale"
+             x:Class="ZincirApp.Settings.SettingsViews.AppearanceSettingsView">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <templates:SettingControl Header="{x:Static ui:UiTexts.ThemeLabel}" Description="{x:Static ui:UiTexts.ThemeDescription}">
+                <templates:SettingControl.SettingContent>
+                    <ComboBox Name="ThemeComboBox">
+                        <ComboBoxItem Content="{x:Static ui:UiTexts.Light}" Tag="Light"/>
+                        <ComboBoxItem Content="{x:Static ui:UiTexts.Dark}" Tag="Dark"/>
+                    </ComboBox>
+                </templates:SettingControl.SettingContent>
+            </templates:SettingControl>
+            <templates:SettingControl Header="{x:Static ui:UiTexts.PrimaryColorLabel}" Description="{x:Static ui:UiTexts.PrimaryColorDescription}">
+                <templates:SettingControl.SettingContent>
+                    <ComboBox Name="PrimaryColorComboBox"/>
+                </templates:SettingControl.SettingContent>
+            </templates:SettingControl>
+            <templates:SettingControl Header="{x:Static ui:UiTexts.SecondaryColorLabel}" Description="{x:Static ui:UiTexts.SecondaryColorDescription}">
+                <templates:SettingControl.SettingContent>
+                    <ComboBox Name="SecondaryColorComboBox"/>
+                </templates:SettingControl.SettingContent>
+            </templates:SettingControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

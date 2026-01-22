@@ -13,7 +13,7 @@
         
         <styles:IconButton IsChecked="False" Content="Click Me!" IconVisible="True" Kind="Worker" />
         <styles:IconButton Classes="accent" Content="Click Me!" />
-        <styles:IconButton Theme="{StaticResource MaterialOutlineButton}" Content="Click Me!"></styles:IconButton>
+        <styles:IconButton Classes="flat" Content="Click Me!"></styles:IconButton>
         
       </StackPanel>
     </Border>

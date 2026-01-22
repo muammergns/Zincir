@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using ZincirApp.Assets;
+using ZincirApp.Locale;
 
 namespace ZincirApp.ViewModels;
 

@@ -11,6 +11,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using Material.Colors;
 using Material.Styles.Themes;
 using Material.Styles.Themes.Base;
@@ -23,6 +24,9 @@ namespace ZincirApp;
 public partial class App : Application
 {
     public static SettingsService? Settings { get; private set; }
+    
+    
+    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -32,11 +36,7 @@ public partial class App : Application
     {
         var appSettings = Settings?.Load();
         ApplySettings(appSettings ?? new AppSettings());
-        var colorNames = Enum.GetNames(typeof(Material.Colors.PrimaryColor)).ToList();
-        foreach (var colorName in colorNames)
-        {
-            Console.WriteLine(colorName);
-        }
+        
         //görüntü yüklenmeden öncesi
         switch (ApplicationLifetime)
         {
@@ -98,7 +98,7 @@ public partial class App : Application
         }
 
         // Dil
-        Assets.UiTexts.Culture = new CultureInfo(settings.Language);
+        Locale.UiTexts.Culture = new CultureInfo(settings.Language);
         Thread.CurrentThread.CurrentCulture = new CultureInfo(settings.Language);
         Thread.CurrentThread.CurrentUICulture = new CultureInfo(settings.Language);
         

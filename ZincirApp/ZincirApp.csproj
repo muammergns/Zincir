@@ -8,6 +8,9 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**"/>
+        <Folder Include="Core\" />
+        <Folder Include="CustomControls\" />
+        <Folder Include="Locale\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -45,21 +48,19 @@
     </ItemGroup>
     
     <ItemGroup>
-      <EmbeddedResource Update="Assets\UiTexts.resx">
+      <EmbeddedResource Update="Locale\UiTexts.resx">
         <Generator>PublicResXFileCodeGenerator</Generator>
         <LastGenOutput>UiTexts.Designer.cs</LastGenOutput>
       </EmbeddedResource>
     </ItemGroup>
     
     <ItemGroup>
-      <Compile Update="Assets\UiTexts.Designer.cs">
+      <Compile Update="Locale\UiTexts.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>UiTexts.resx</DependentUpon>
       </Compile>
     </ItemGroup>
     
-    <ItemGroup>
-      <Folder Include="CustomControls\" />
-    </ItemGroup>
+
 </Project>

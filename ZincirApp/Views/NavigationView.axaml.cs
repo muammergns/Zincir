@@ -2,6 +2,8 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Material.Icons;
+using Material.Icons.Avalonia;
 
 namespace ZincirApp.Views;
 
@@ -23,6 +25,7 @@ public partial class NavigationView : UserControl
         PomodoroViewButton.Click += (_, _) => PomodoroViewButtonClicked?.Invoke();
         SettingViewButton.Click += (_, _) => SettingViewButtonClicked?.Invoke();
         DatabaseSelectButton.Click += (_, _) => DatabaseSelectButtonClicked?.Invoke();
+        //TestButton.Content = new MaterialIconTextExt(MaterialIconKind.ABCOff, "deneme", null, MaterialIconAnimation.Spin).ProvideValue(null!);
     }
 
     public void SetTodayViewButton(bool isOn = true)

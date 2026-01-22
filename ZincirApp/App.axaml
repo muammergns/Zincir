@@ -6,11 +6,13 @@
              Name="Zincir"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-             <NativeMenu.Menu>
-                 <NativeMenu>
-                     <!-- Burası üstteki menü barı disable yapmak için kullanılır. -->
-                 </NativeMenu>
-             </NativeMenu.Menu>
+             
+     <NativeMenu.Menu>
+         <NativeMenu>
+             <!-- Burası üstteki menü barı disable yapmak için kullanılır. -->
+         </NativeMenu>
+     </NativeMenu.Menu>
+             
     <Application.Styles>
         <themes:MaterialTheme/>
         <avalonia:MaterialIconStyles />
@@ -29,7 +31,9 @@
             <Setter Property="Background" Value="{DynamicResource MaterialSecondaryDarkBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource MaterialSecondaryDarkForegroundBrush}"/>
         </Style>
+        <StyleInclude Source="Templates/SettingControl.axaml"/>
     </Application.Styles>
+             
     <Application.Resources>
          <ResourceDictionary>
              <ResourceDictionary.MergedDictionaries>
@@ -38,4 +42,5 @@
              </ResourceDictionary.MergedDictionaries>
          </ResourceDictionary>
     </Application.Resources>
+             
 </Application>

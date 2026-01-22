@@ -10,7 +10,12 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-    <SplitView Name="LeftDrawer" IsPaneOpen="True" OpenPaneLength="250" PanePlacement="Left" DisplayMode="CompactInline">
+    <SplitView 
+        Name="LeftDrawer" 
+        IsPaneOpen="True" 
+        OpenPaneLength="250" 
+        PanePlacement="Left" 
+        DisplayMode="Inline">
         <SplitView.Pane>
             <DockPanel Background="{DynamicResource MaterialPaperBrush}">
                 <Border Classes="Card" Margin="0,0,4,0">
@@ -26,10 +31,13 @@
                         <TextBlock Name="CenterDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </DockPanel>
                 </Border>
-                <Border Classes="Card" >
-                    <ContentControl Name="CenterContent"/>
-                </Border>
+                <TransitioningContentControl Name="CenterContent">
+                    <TransitioningContentControl.PageTransition>
+                        <CrossFade Duration="0:0:0.3"/>
+                    </TransitioningContentControl.PageTransition>
+                </TransitioningContentControl>
             </DockPanel>
         </SplitView.Content>
     </SplitView>
+    
 </UserControl>

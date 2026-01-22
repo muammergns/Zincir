@@ -1,0 +1,57 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:ZincirApp.Templates">
+    <Design.PreviewWith>
+        <controls:SettingControl Header="Otomatik Başlat" IsDescriptionVisible="True" Description="Sistem açılışında programı başlatır">
+            <controls:SettingControl.SettingContent>
+                <ToggleSwitch IsChecked="True"/>
+            </controls:SettingControl.SettingContent>
+        </controls:SettingControl>
+    </Design.PreviewWith>
+
+    <Style Selector="controls|SettingControl">
+        
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid ColumnDefinitions="2*,*" RowDefinitions="*,Auto,Auto" RowSpacing="4" ColumnSpacing="8" Margin="8" >
+                    
+                    <TextBlock
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        Text="{TemplateBinding Header}"
+                        FontWeight="Bold"
+                        TextWrapping="Wrap"
+                        LineHeight="18"
+                        VerticalAlignment="Center"/>
+                    
+                    <TextBlock
+                        Grid.Column="0"
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        TextWrapping="Wrap"
+                        LineHeight="18"
+                        IsVisible="{TemplateBinding IsDescriptionVisible}"
+                        VerticalAlignment="Center"
+                        Text="{TemplateBinding Description}"
+                        FontStyle="Oblique"/>
+                    
+
+                    <ContentPresenter Grid.Row="0"
+                                      Grid.Column="1"
+                                      MinWidth="50"
+                                      MinHeight="40"
+                                      Content="{TemplateBinding SettingContent}"
+                                      VerticalAlignment="Center"/>
+                    
+                    <Rectangle 
+                        Grid.Column="0" 
+                        Grid.Row="2" 
+                        Grid.ColumnSpan="2" 
+                        Opacity="0.2"
+                        Fill="{DynamicResource MaterialSecondaryMidBrush}" 
+                        Height="2" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>
