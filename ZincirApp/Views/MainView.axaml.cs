@@ -13,120 +13,113 @@ public partial class MainView : UserControl
         Large
     }
 
-    private PaneState _currentState;
-    private readonly DispatcherTimer? _debounceTimer;
-    private double _resizeWidth;
-    private readonly HabitListView _habitList = new HabitListView();
-    private readonly PomodoroView _pomodoro = new PomodoroView();
-    private readonly SettingListView _setting  = new SettingListView();
-    private readonly TodoListView _todoList  = new TodoListView();
-    private readonly NavigationView _navigation  = new NavigationView();
-    private readonly TodayView _today  = new TodayView();
-    private readonly DatabaseSelectView _databaseSelect = new DatabaseSelectView();
+    private PaneState _windowState, _panelState;
+    private readonly DispatcherTimer _leftDebounceTimer = new DispatcherTimer{ Interval = TimeSpan.FromMilliseconds(100) };
+    private readonly DispatcherTimer _rightDebounceTimer = new DispatcherTimer{ Interval = TimeSpan.FromMilliseconds(100) };
+    private double _resizeWindowWidth, _resizePanelWidth;
+    private bool _isRightFocus;
     public MainView()
     {
         InitializeComponent();
-        LeftContent.Content = _navigation;
-        ShowView(_today);
-        _navigation.SetTodayViewButton();
-        _navigation.TodayViewButtonClicked += () =>
-        {
-            ShowView(_today);
-            _navigation.SetTodayViewButton();
-        };
-        _navigation.TodoViewButtonClicked += () =>
-        {
-            ShowView(_todoList);
-            _navigation.SetTodoViewButton();
-        };
-        _navigation.HabitViewButtonClicked += () =>
-        {
-            ShowView(_habitList);
-            _navigation.SetHabitViewButton();
-        };
-        _navigation.PomodoroViewButtonClicked += () =>
-        {
-            ShowView(_pomodoro);
-            _navigation.SetPomodoroViewButton();
-        };
-        _navigation.SettingViewButtonClicked += () =>
-        {
-            ShowView(_setting);
-            _navigation.SetSettingViewButton();
-        };
-        _navigation.DatabaseSelectButtonClicked += () =>
-        {
-            ShowView(_databaseSelect);
-            _navigation.SetDatabaseSelectButton();
-        };
-        this.SizeChanged += OnSizeChanged;
-        _debounceTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(50)
-        };
-        _debounceTimer.Tick += ResizeTimer_Tick;
-        _debounceTimer.Start();
-        _navigation.PaneCloseButton.Click += (_, _) =>
+        this.SizeChanged += OnWindowSizeChanged;
+        RightDrawer.SizeChanged += OnPanelSizeChanged;
+        _leftDebounceTimer.Tick += LeftDebounceTimer_Tick;
+        _leftDebounceTimer.Start();
+        _rightDebounceTimer.Tick += RightDebounceTimer_Tick;
+        _rightDebounceTimer.Start();
+        LeftPaneCloseButton.Click += (_, _) =>
         {
             LeftDrawer.IsPaneOpen = false;
         };
-        LeftPaneToggleButton.Content = _navigation.PaneCloseButton.Content = "<";
+        RightPaneCloseButton.Click += (_, _) =>
+        {
+            RightDrawer.IsPaneOpen = false;
+            _isRightFocus = false;
+        };
+        LeftPaneToggleButton.Content = LeftPaneCloseButton.Content = "<";
+        RightPaneCloseButton.Content = ">";
         LeftPaneToggleButton.Click += (_, _) =>
         {
             LeftDrawer.IsPaneOpen = !LeftDrawer.IsPaneOpen;
             LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
         };
         LeftDrawer.PaneClosing += PanelClosing;
-        CenterDate.Text = _navigation.CenterDate.Text = DateTime.Now.ToLongDateString();
+        CenterDate.Text = LeftDate.Text = DateTime.Now.ToLongDateString();
     }
 
     private void PanelClosing(object? sender, CancelRoutedEventArgs e)
     {
         if (e.Source is not SplitView splitView) return;
         if (splitView.Equals(LeftDrawer)) return;
-        if (!LeftDrawer.IsPaneOpen) return;
+        if (!LeftDrawer.IsPaneOpen)
+        { if (splitView.Equals(RightDrawer)) _isRightFocus = false; return; }
         if (!LeftDrawer.DisplayMode.Equals(SplitViewDisplayMode.Overlay)) return;
         e.Cancel = true;
         LeftDrawer.IsPaneOpen = false;
     }
     
-    private void ShowView(UserControl control)
+    private void LeftDebounceTimer_Tick(object? sender, EventArgs e)
     {
-        CenterContent.Content = control;
-        _navigation.UnCheckAllButtons();
-        if (_currentState is not PaneState.Small) return;
-        LeftDrawer.IsPaneOpen = false;
+        UpdateWindowLayoutState();
+        _leftDebounceTimer.Stop();
     }
-    private void ResizeTimer_Tick(object? sender, EventArgs e)
+    private void RightDebounceTimer_Tick(object? sender, EventArgs e)
     {
-        UpdateLayoutState();
-        _debounceTimer?.Stop();
+        UpdatePanelLayoutState();
+        _rightDebounceTimer.Stop();
     }
 
-    private void UpdateLayoutState()
+    private void UpdateWindowLayoutState()
     {
-        _currentState = 
-            _resizeWidth < 700 ? PaneState.Small : 
-            _resizeWidth < 1070 ? PaneState.Medium : 
+        _windowState = 
+            _resizeWindowWidth < 700 ? PaneState.Small : 
+            _resizeWindowWidth < 1070 ? PaneState.Medium : 
             PaneState.Large;
-        LeftDrawer.DisplayMode = _currentState is PaneState.Large or PaneState.Medium ? 
+        LeftDrawer.DisplayMode = _windowState is PaneState.Large or PaneState.Medium ? 
             SplitViewDisplayMode.Inline :  SplitViewDisplayMode.Overlay;
-        LeftDrawer.IsPaneOpen = _currentState is PaneState.Large or PaneState.Medium;
+        LeftDrawer.IsPaneOpen = _windowState is PaneState.Large or PaneState.Medium;
         LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
-        LeftDrawer.OpenPaneLength = _currentState is PaneState.Small ? _resizeWidth : 250;
-        _navigation.HeaderDock.IsVisible = _currentState is PaneState.Small;
+        LeftDrawer.OpenPaneLength = _windowState is PaneState.Small ? _resizeWindowWidth : 250;
+        LeftHeaderDock.IsVisible = _windowState is PaneState.Small;
     }
-    private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
+    private void UpdatePanelLayoutState()
     {
-        //int o = Convert.ToInt32(e.PreviousSize.Width);
-        //int l = Convert.ToInt32(_resizeWidth);
-        //int n = Convert.ToInt32(e.NewSize.Width);
-        //Console.WriteLine($@"Prev:{o} Log:{l} New:{n}");
-        _resizeWidth = e.NewSize.Width;
-        _debounceTimer?.Stop();
-        _debounceTimer?.Start();
+        _panelState = 
+            _resizePanelWidth < 450 ? PaneState.Small : 
+            _resizePanelWidth < 700 ? PaneState.Medium : 
+            PaneState.Large;
+        RightDrawer.DisplayMode = _panelState is PaneState.Large ? 
+            SplitViewDisplayMode.Inline :  SplitViewDisplayMode.Overlay;
+        RightDrawer.IsPaneOpen = _panelState is PaneState.Large || _isRightFocus;
+        RightPaneCloseButton.IsVisible = _panelState is not PaneState.Large;
+        RightDrawer.OpenPaneLength = 
+            _panelState is PaneState.Small or PaneState.Medium ? 
+                _resizePanelWidth : _resizePanelWidth * 0.5;
+    }
+    private void OnWindowSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        _resizeWindowWidth = e.NewSize.Width;
+        _leftDebounceTimer.Stop();
+        _leftDebounceTimer.Start();
+    }
+    
+    private void OnPanelSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        _resizePanelWidth = e.NewSize.Width;
+        Console.WriteLine(_resizePanelWidth);
+        _rightDebounceTimer.Stop();
+        _rightDebounceTimer.Start();
     }
 
+    private void RightDrawer_OnGotFocus(object? sender, RoutedEventArgs e)
+    {
+        _isRightFocus = true;
+    }
+
+    private void RightDrawer_OnLostFocus(object? sender, RoutedEventArgs e)
+    {
+        _isRightFocus = false;
+    }
     
 
 }

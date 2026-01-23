@@ -2,9 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ui="clr-namespace:ZincirApp.Assets"
              xmlns:templates="clr-namespace:ZincirApp.Templates"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="ZincirApp.Views.TodayView">
-    TodayView
+             xmlns:ui="clr-namespace:ZincirApp.Locale"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
+             x:Class="ZincirApp.Views.SettingView">
+    
+    SettingView
+    
 </UserControl>

@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace ZincirApp.Views;
 
-public partial class HabitListView : UserControl
+public partial class TodoView : UserControl
 {
-    public HabitListView()
+    public TodoView()
     {
         InitializeComponent();
     }

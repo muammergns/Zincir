@@ -8,7 +8,6 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**"/>
-        <Folder Include="Core\" />
         <Folder Include="CustomControls\" />
         <Folder Include="Locale\" />
     </ItemGroup>
@@ -33,6 +32,8 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Xaml.Behaviors.Interactions" />
     </ItemGroup>
     
     <ItemGroup>

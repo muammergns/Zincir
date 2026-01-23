@@ -15,6 +15,8 @@ using Avalonia.Threading;
 using Material.Colors;
 using Material.Styles.Themes;
 using Material.Styles.Themes.Base;
+using Microsoft.Extensions.DependencyInjection;
+using ZincirApp.Services;
 using ZincirApp.Settings;
 using ZincirApp.ViewModels;
 using ZincirApp.Views;
@@ -34,10 +36,17 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var collection = new ServiceCollection();
+        collection.AddSingleton<INavigationService, NavigationService>();
+        collection.AddScoped<MainViewModel>();
+        collection.AddTransient<SettingViewModel>();
+        collection.AddScoped<TodayViewModel>();
+        collection.AddScoped<TodoViewModel>();
+        collection.AddScoped<HabitViewModel>();
+        collection.AddScoped<PomodoroViewModel>();
         var appSettings = Settings?.Load();
         ApplySettings(appSettings ?? new AppSettings());
-        
-        //görüntü yüklenmeden öncesi
+        var services = collection.BuildServiceProvider();
         switch (ApplicationLifetime)
         {
             case IClassicDesktopStyleApplicationLifetime desktop:
@@ -46,17 +55,16 @@ public partial class App : Application
                 DisableAvaloniaDataAnnotationValidation();
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainViewModel()
+                    DataContext = services.GetRequiredService<MainViewModel>()
                 };
                 break;
             case ISingleViewApplicationLifetime singleViewPlatform:
                 singleViewPlatform.MainView = new MainView
                 {
-                    DataContext = new MainViewModel()
+                    DataContext = services.GetRequiredService<MainViewModel>()
                 };
                 break;
         }
-        //görüntü yüklendikten sonrası
         base.OnFrameworkInitializationCompleted();
     }
 

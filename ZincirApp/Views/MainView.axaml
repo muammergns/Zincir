@@ -3,12 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ZincirApp.ViewModels"
+             xmlns:customControls="clr-namespace:ZincirApp.CustomControls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ZincirApp.Views.MainView" Padding="4"
              x:DataType="vm:MainViewModel">
-  <Design.DataContext>
-    <vm:MainViewModel />
-  </Design.DataContext>
 
     <SplitView 
         Name="LeftDrawer" 
@@ -18,8 +16,35 @@
         DisplayMode="Inline">
         <SplitView.Pane>
             <DockPanel Background="{DynamicResource MaterialPaperBrush}">
-                <Border Classes="Card" Margin="0,0,4,0">
-                    <ContentControl Name="LeftContent"/>
+                <Border Classes="Back" Margin="0,0,4,0">
+                    <Grid RowDefinitions="Auto, *, Auto, Auto" RowSpacing="8">
+                        <DockPanel Grid.Row="0" Name="LeftHeaderDock">
+                            <Button DockPanel.Dock="Right" Classes="Flat" Content="-" Name="LeftPaneCloseButton"/>
+                            <TextBlock Name="LeftDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DockPanel>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel Orientation="Vertical" Spacing="10">
+                                <customControls:IconButton 
+                                    Kind="CalendarToday" Content="Günüm" Name="TodayViewButton"
+                                    Command="{Binding ShowTodayViewCommand}"/>
+                                <customControls:IconButton 
+                                    Kind="CalendarTask" Content="Görevler" Name="TodoViewButton"
+                                    Command="{Binding ShowTodoViewCommand}"/>
+                                <customControls:IconButton 
+                                    Kind="TrackChanges" Content="Alışkanlıklar" Name="HabitViewButton"
+                                    Command="{Binding ShowHabitViewCommand}"/>
+                                <customControls:IconButton 
+                                    Kind="Timer" Content="Pomodoro" Name="PomodoroViewButton"
+                                    Command="{Binding ShowPomodoroViewCommand}"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <customControls:IconButton 
+                            Kind="Settings" Grid.Row="2" Content="Ayarlar" Name="SettingViewButton"
+                            Command="{Binding ShowSettingViewCommand}" />
+                        <customControls:IconButton 
+                            Grid.Row="3" Kind="JewelCaseOutline"  Content="Kasa" Name="DatabaseSelectButton"
+                            Command="{Binding ShowSettingViewCommand}" />
+                    </Grid>
                 </Border>
             </DockPanel>
         </SplitView.Pane>
@@ -31,13 +56,30 @@
                         <TextBlock Name="CenterDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </DockPanel>
                 </Border>
-                <TransitioningContentControl Name="CenterContent">
-                    <TransitioningContentControl.PageTransition>
-                        <CrossFade Duration="0:0:0.3"/>
-                    </TransitioningContentControl.PageTransition>
-                </TransitioningContentControl>
+                <SplitView Name="RightDrawer" IsPaneOpen="True" OpenPaneLength="300" PanePlacement="Right" DisplayMode="Overlay">
+                    <SplitView.Pane>
+                        <DockPanel GotFocus="RightDrawer_OnGotFocus" Background="{DynamicResource  MaterialDesignCardBackground}">
+                            <DockPanel Dock="Top">
+                                <Button DockPanel.Dock="Left" Classes="Flat" Name="RightPaneCloseButton"/>
+                                <TextBlock Name="RightDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </DockPanel>
+                            <ContentControl Name="RightContent"/>
+                        </DockPanel>
+                    </SplitView.Pane>
+                    <SplitView.Content>
+                        <DockPanel>
+                            <TransitioningContentControl 
+                                Name="CenterContent"
+                                GotFocus="RightDrawer_OnLostFocus"
+                                Content="{Binding NavService.CurrentView}">
+                                <TransitioningContentControl.PageTransition>
+                                    <CrossFade Duration="0:0:0.3"/>
+                                </TransitioningContentControl.PageTransition>
+                            </TransitioningContentControl>
+                        </DockPanel>
+                    </SplitView.Content>
+                </SplitView>
             </DockPanel>
         </SplitView.Content>
     </SplitView>
-    
 </UserControl>

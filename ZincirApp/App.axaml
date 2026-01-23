@@ -2,6 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
+             xmlns:views="clr-namespace:ZincirApp.Views"
              x:Class="ZincirApp.App"
              Name="Zincir"
              RequestedThemeVariant="Default">
@@ -33,6 +35,27 @@
         </Style>
         <StyleInclude Source="Templates/SettingControl.axaml"/>
     </Application.Styles>
+    
+     <Application.DataTemplates>
+         <DataTemplate DataType="{x:Type vm:MainViewModel}">
+             <views:MainView />
+         </DataTemplate>
+         <DataTemplate DataType="{x:Type vm:SettingViewModel}">
+             <views:SettingView />
+         </DataTemplate>
+         <DataTemplate DataType="{x:Type vm:TodayViewModel}">
+             <views:TodayView />
+         </DataTemplate>
+         <DataTemplate DataType="{x:Type vm:TodoViewModel}">
+             <views:TodoView />
+         </DataTemplate>
+         <DataTemplate DataType="{x:Type vm:HabitViewModel}">
+             <views:HabitView />
+         </DataTemplate>
+         <DataTemplate DataType="{x:Type vm:PomodoroViewModel}">
+             <views:PomodoroView />
+         </DataTemplate>
+     </Application.DataTemplates>
              
     <Application.Resources>
          <ResourceDictionary>
