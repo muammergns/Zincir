@@ -2,6 +2,7 @@
 using Android.Content.PM;
 using Avalonia;
 using Avalonia.Android;
+using ZincirApp.Extensions;
 
 namespace ZincirApp.Android;
 
@@ -15,6 +16,10 @@ public class MainActivity : AvaloniaMainActivity<App>
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
+        PlatformServices.NotificationServiceFactory = () => new AndroidNotificationService(this);
+        PlatformServices.TimerServiceFactory = () => new AndroidTimerService();
+
+        
         return base.CustomizeAppBuilder(builder)
             .WithInterFont();
     }

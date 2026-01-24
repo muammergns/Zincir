@@ -1,9 +1,12 @@
+using System;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using ZincirApp.Extensions;
 using ZincirApp.Services;
 using ZincirApp.ViewModels;
 using ZincirApp.Views;
@@ -19,6 +22,7 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        Debug.WriteLine("OnFrameworkInitializationCompleted", "MainActivity");
         var collection = new ServiceCollection();
         
         collection.AddSingleton<INavigationService, NavigationService>();
@@ -26,6 +30,30 @@ public class App : Application
         collection.AddTransient<IStorageService, StorageService>();
         
         AddViews(collection);
+        
+        switch (ApplicationLifetime)
+        {
+            case IClassicDesktopStyleApplicationLifetime:
+                collection.AddTransient<IMessageService, DesktopMessageBoxService>();
+                break;
+            case ISingleViewApplicationLifetime:
+                collection.AddTransient<IMessageService, SingleViewMessageBoxService>();
+                break;
+        }
+
+        if (OperatingSystem.IsAndroid())
+        {
+            collection.AddTransient<INotificationService>(sp => 
+                PlatformServices.NotificationServiceFactory != null ? 
+                PlatformServices.NotificationServiceFactory() : 
+                new NotificationService(new SingleViewMessageBoxService()));
+            collection.AddTransient<ITimerService>(sp => 
+                PlatformServices.TimerServiceFactory != null ? 
+                    PlatformServices.TimerServiceFactory() : 
+                    new TimerService());
+        }
+            
+        
         
         var services = collection.BuildServiceProvider();
         

@@ -11,7 +11,22 @@ public partial class TodayViewModel : ViewModelBase
 {
     public TodayViewModel(IServiceProvider serviceProvider) :base(serviceProvider)
     {
-        Console.WriteLine(@"Today ViewModel");
+        var service = serviceProvider.GetService<INotificationService>();
+        if (service != null)
+        {
+            if (service.CheckPermission())
+            {
+                service?.ShowNotification("Title", "Message");
+            }
+            else
+            {
+                service.RequestPermission();
+            }
+        }
+        
+        //service?.ScheduleNotification("Today","Deneme" , new TimeSpan(0, 0, 30));
+        //var service = serviceProvider.GetService<ITimerService>();
+        //service?.StartTimer(60);
     }
 
     [RelayCommand] private void OpenPane()

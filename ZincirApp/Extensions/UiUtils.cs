@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Material.Colors;
 using Material.Styles.Themes;
 
@@ -20,7 +21,10 @@ public static class UiUtils
 
         if (app.TryGetResource(resourceKey, app.ActualThemeVariant, out object? res) && res is IBrush brush)
         {
-            control.SetValue(TemplatedControl.BackgroundProperty, brush);
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                control.SetValue(TemplatedControl.BackgroundProperty, brush);
+            });
         }
     }
     public static void SetMaterialBackground(Control? control, PrimaryColor color)
@@ -29,7 +33,10 @@ public static class UiUtils
 
         var app = Application.Current;
         if (app == null) return;
-        control.SetValue(TemplatedControl.BackgroundProperty, MaterialColorBrush(color));
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            control.SetValue(TemplatedControl.BackgroundProperty, MaterialColorBrush(color));
+        });
     }
     
     public static IBrush MaterialColorBrush(PrimaryColor primaryColor)
