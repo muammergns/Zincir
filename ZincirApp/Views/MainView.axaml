@@ -56,14 +56,21 @@
                         <TextBlock Name="CenterDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </DockPanel>
                 </Border>
-                <SplitView Name="RightDrawer" IsPaneOpen="True" OpenPaneLength="300" PanePlacement="Right" DisplayMode="Overlay">
+                <SplitView Name="RightDrawer" IsPaneOpen="{Binding IsRightPaneOpen, Mode=TwoWay}" OpenPaneLength="300" PanePlacement="Right" DisplayMode="Overlay">
                     <SplitView.Pane>
                         <DockPanel GotFocus="RightDrawer_OnGotFocus" Background="{DynamicResource  MaterialDesignCardBackground}">
                             <DockPanel Dock="Top">
                                 <Button DockPanel.Dock="Left" Classes="Flat" Name="RightPaneCloseButton"/>
                                 <TextBlock Name="RightDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </DockPanel>
-                            <ContentControl Name="RightContent"/>
+                            <TransitioningContentControl 
+                                Name="RightContent"
+                                GotFocus="RightDrawer_OnLostFocus"
+                                Content="{Binding NavService.SubView}">
+                                <TransitioningContentControl.PageTransition>
+                                    <CrossFade Duration="0:0:0.3"/>
+                                </TransitioningContentControl.PageTransition>
+                            </TransitioningContentControl>
                         </DockPanel>
                     </SplitView.Pane>
                     <SplitView.Content>

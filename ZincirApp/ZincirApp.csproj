@@ -61,6 +61,10 @@
         <AutoGen>True</AutoGen>
         <DependentUpon>UiTexts.resx</DependentUpon>
       </Compile>
+      <Compile Update="Views\AppearanceSettingsView.axaml.cs">
+        <DependentUpon>AppearanceSettingsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
     
 

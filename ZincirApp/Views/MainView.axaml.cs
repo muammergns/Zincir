@@ -106,7 +106,6 @@ public partial class MainView : UserControl
     private void OnPanelSizeChanged(object? sender, SizeChangedEventArgs e)
     {
         _resizePanelWidth = e.NewSize.Width;
-        Console.WriteLine(_resizePanelWidth);
         _rightDebounceTimer.Stop();
         _rightDebounceTimer.Start();
     }

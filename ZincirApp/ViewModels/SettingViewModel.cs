@@ -9,5 +9,6 @@ public class SettingViewModel : ViewModelBase
     public SettingViewModel(IServiceProvider serviceProvider) :base(serviceProvider)
     {
         Console.WriteLine(@"Setting ViewModel");
+        NavService.NavigateToSub<AppearanceSettingsViewModel>();
     }
 }

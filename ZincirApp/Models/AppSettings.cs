@@ -1,4 +1,4 @@
-namespace ZincirApp.Settings;
+namespace ZincirApp.Models;
 
 public class AppSettings
 {

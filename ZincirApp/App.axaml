@@ -11,7 +11,7 @@
              
      <NativeMenu.Menu>
          <NativeMenu>
-             <!-- Burası üstteki menü barı disable yapmak için kullanılır. -->
+             <!-- Burası mac pc dock menü barı disable yapmak için kullanılır. -->
          </NativeMenu>
      </NativeMenu.Menu>
              
@@ -55,6 +55,13 @@
          <DataTemplate DataType="{x:Type vm:PomodoroViewModel}">
              <views:PomodoroView />
          </DataTemplate>
+     </Application.DataTemplates>
+             
+     <Application.DataTemplates>
+         <DataTemplate DataType="{x:Type vm:AppearanceSettingsViewModel}">
+             <views:AppearanceSettingsView />
+         </DataTemplate>
+         
      </Application.DataTemplates>
              
     <Application.Resources>

@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace ZincirApp.Settings.SettingsViews;
+namespace ZincirApp.Views;
 
 public partial class AppearanceSettingsView : UserControl
 {

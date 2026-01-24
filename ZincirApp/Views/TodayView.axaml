@@ -6,5 +6,10 @@
              xmlns:templates="clr-namespace:ZincirApp.Templates"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ZincirApp.Views.TodayView">
-    TodayView
+    <Button Content="Today Buton"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Name="TodayButton"
+            Command="{Binding OpenPaneCommand}"
+            />
 </UserControl>
