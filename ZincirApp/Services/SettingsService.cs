@@ -47,8 +47,10 @@ public class SettingsService(IStorageService storage) : ISettingsService
                 PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate
             };
             var loadedSettings = JsonSerializer.Deserialize<AppSettings>(rawJson, options) ?? defaultSettings;
-            if (!IsSyncRequired(rawJson, loadedSettings)) return loadedSettings;
-            SaveSettings(loadedSettings);
+            if (IsSyncRequired(rawJson, loadedSettings))
+            {
+                SaveSettings(loadedSettings);
+            }
             return loadedSettings;
         }
         catch
@@ -62,7 +64,7 @@ public class SettingsService(IStorageService storage) : ISettingsService
     {
         string? currentHash = loadedSettings.HashSignature;
         loadedSettings.HashSignature = null;
-        string serializedCurrent = JsonSerializer.Serialize(loadedSettings);
+        string serializedCurrent = JsonSerializer.Serialize(loadedSettings, AppJsonContext.Default.AppSettings);
         loadedSettings.HashSignature = currentHash;
         return !NormalizeJson(originalJson).Equals(serializedCurrent);
     }
@@ -70,9 +72,9 @@ public class SettingsService(IStorageService storage) : ISettingsService
     public void SaveSettings(AppSettings settings)
     {
         settings.HashSignature = null; 
-        var jsonWithoutHash = JsonSerializer.Serialize(settings);
+        var jsonWithoutHash = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
         settings.HashSignature = ComputeHash(jsonWithoutHash);
-        var finalJson = JsonSerializer.Serialize(settings);
+        var finalJson = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
         storage.Save(KeyTexts.SettingsKey, finalJson);
     }
 
@@ -124,7 +126,7 @@ public class SettingsService(IStorageService storage) : ISettingsService
             var tempObj = JsonSerializer.Deserialize<AppSettings>(fullJson, options);
             if (tempObj == null) return false;
             tempObj.HashSignature = null;
-            string recomputedHash = ComputeHash(JsonSerializer.Serialize(tempObj));
+            string recomputedHash = ComputeHash(JsonSerializer.Serialize(tempObj, AppJsonContext.Default.AppSettings));
 
             return storedHash == recomputedHash;
         }

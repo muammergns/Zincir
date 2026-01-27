@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
+using Avalonia.Controls.Platform;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using ZincirApp.Extensions;
@@ -41,18 +42,14 @@ public class App : Application
                 break;
         }
 
-        if (OperatingSystem.IsAndroid())
-        {
-            collection.AddTransient<INotificationService>(sp => 
-                PlatformServices.NotificationServiceFactory != null ? 
+        collection.AddTransient<INotificationService>(sp => 
+            PlatformServices.NotificationServiceFactory != null ? 
                 PlatformServices.NotificationServiceFactory() : 
                 new NotificationService(new SingleViewMessageBoxService()));
-            collection.AddTransient<ITimerService>(sp => 
-                PlatformServices.TimerServiceFactory != null ? 
-                    PlatformServices.TimerServiceFactory() : 
-                    new TimerService());
-        }
-            
+        collection.AddTransient<ITimerService>(sp => 
+            PlatformServices.TimerServiceFactory != null ? 
+                PlatformServices.TimerServiceFactory() : 
+                new TimerService());
         
         
         var services = collection.BuildServiceProvider();

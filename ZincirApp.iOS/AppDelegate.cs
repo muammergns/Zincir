@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.iOS;
 using Avalonia.Media;
+using ZincirApp.Extensions;
 
 namespace ZincirApp.iOS;
 
@@ -17,7 +18,10 @@ public partial class AppDelegate : AvaloniaAppDelegate<App>
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
+        PlatformServices.NotificationServiceFactory = () => new UosNotificationService();
         return base.CustomizeAppBuilder(builder)
             .WithInterFont();
     }
+    
+    
 }

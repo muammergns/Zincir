@@ -1,5 +1,7 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 
@@ -17,10 +19,25 @@ public partial class MainView : UserControl
     private readonly DispatcherTimer _leftDebounceTimer = new DispatcherTimer{ Interval = TimeSpan.FromMilliseconds(100) };
     private readonly DispatcherTimer _rightDebounceTimer = new DispatcherTimer{ Interval = TimeSpan.FromMilliseconds(100) };
     private double _resizeWindowWidth, _resizePanelWidth;
+    private IInsetsManager? InsetsManager {get; set;}
     private bool _isRightFocus;
     public MainView()
     {
         InitializeComponent();
+        Loaded += (sender, args) =>
+        {
+            InsetsManager = TopLevel.GetTopLevel(this)?.InsetsManager;
+            if (InsetsManager is null) return;
+            var im = InsetsManager.SafeAreaPadding;
+            Padding = new Thickness(im.Left + 4, im.Top + 4, im.Right + 4, im.Bottom + 4) ;
+            InsetsManager.SafeAreaChanged += SafeAreaChanged;
+        };
+        Unloaded += (sender, args) =>
+        {
+            if (InsetsManager is null) return;
+            InsetsManager.SafeAreaChanged -= SafeAreaChanged;
+        };
+        
         this.SizeChanged += OnWindowSizeChanged;
         RightDrawer.SizeChanged += OnPanelSizeChanged;
         _leftDebounceTimer.Tick += LeftDebounceTimer_Tick;
@@ -30,6 +47,7 @@ public partial class MainView : UserControl
         LeftPaneCloseButton.Click += (_, _) =>
         {
             LeftDrawer.IsPaneOpen = false;
+            LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
         };
         RightPaneCloseButton.Click += (_, _) =>
         {
@@ -47,15 +65,32 @@ public partial class MainView : UserControl
         CenterDate.Text = LeftDate.Text = DateTime.Now.ToLongDateString();
     }
 
+    private void SafeAreaChanged(object? sender, SafeAreaChangedArgs e)
+    {
+        var a = e.SafeAreaPadding;
+        Padding = new Thickness(a.Left + 4, a.Top + 4, a.Right + 4, a.Bottom + 4) ;
+    }
+
     private void PanelClosing(object? sender, CancelRoutedEventArgs e)
     {
         if (e.Source is not SplitView splitView) return;
-        if (splitView.Equals(LeftDrawer)) return;
+        if (splitView.Equals(LeftDrawer))
+        {
+            if (_windowState is not PaneState.Large) return;
+            e.Cancel = true;
+            LeftDrawer.IsPaneOpen = true;
+            LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
+            return;
+        }
         if (!LeftDrawer.IsPaneOpen)
-        { if (splitView.Equals(RightDrawer)) _isRightFocus = false; return; }
+        {
+            if (splitView.Equals(RightDrawer)) _isRightFocus = false;
+            return;
+        }
         if (!LeftDrawer.DisplayMode.Equals(SplitViewDisplayMode.Overlay)) return;
         e.Cancel = true;
         LeftDrawer.IsPaneOpen = false;
+        LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
     }
     
     private void LeftDebounceTimer_Tick(object? sender, EventArgs e)
@@ -91,7 +126,7 @@ public partial class MainView : UserControl
         RightDrawer.DisplayMode = _panelState is PaneState.Large ? 
             SplitViewDisplayMode.Inline :  SplitViewDisplayMode.Overlay;
         RightDrawer.IsPaneOpen = _panelState is PaneState.Large || _isRightFocus;
-        RightPaneCloseButton.IsVisible = _panelState is not PaneState.Large;
+        RightHeaderDock.IsVisible = _panelState is not PaneState.Large;
         RightDrawer.OpenPaneLength = 
             _panelState is PaneState.Small or PaneState.Medium ? 
                 _resizePanelWidth : _resizePanelWidth * 0.5;

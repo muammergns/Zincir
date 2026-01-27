@@ -5,8 +5,8 @@ namespace ZincirApp.Services;
 
 public interface INotificationService
 {
-    void RequestPermission();
-    bool CheckPermission();
+    Task<bool> RequestPermission();
+    Task<bool> CheckPermission();
     void ScheduleNotification(string title, string message, TimeSpan delay);
     void ShowNotification(string title, string message);
 }
@@ -14,14 +14,14 @@ public interface INotificationService
 public class NotificationService(IMessageService messageService) : INotificationService
 {
 
-    public void RequestPermission()
+    public Task<bool> RequestPermission()
     {
-        
+        return Task.FromResult(true);
     }
 
-    public bool CheckPermission()
+    public Task<bool> CheckPermission()
     {
-        return true;
+        return Task.FromResult(true);
     }
 
     public void ScheduleNotification(string title, string message, TimeSpan delay)

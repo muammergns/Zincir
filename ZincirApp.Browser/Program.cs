@@ -1,15 +1,24 @@
-﻿using System.Runtime.Versioning;
+﻿using System;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Browser;
 using ZincirApp;
+using ZincirApp.Browser;
+using ZincirApp.Extensions;
 
 internal sealed partial class Program
 {
-    private static Task Main(string[] args) => BuildAvaloniaApp()
-        .WithInterFont()
-        .StartBrowserAppAsync("out");
+    private static Task Main(string[] args)
+    {
+        return BuildAvaloniaApp()
+            .WithInterFont()
+            .StartBrowserAppAsync("out");
+    }
 
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>();
+    {
+        Console.WriteLine(@"BuildAvaloniaApp()");
+        PlatformServices.NotificationServiceFactory = () => new BrowserNotificationService();
+        return AppBuilder.Configure<App>();
+    }
 }

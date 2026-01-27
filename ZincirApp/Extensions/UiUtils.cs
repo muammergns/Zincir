@@ -6,7 +6,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Material.Colors;
-using Material.Styles.Themes;
 
 namespace ZincirApp.Extensions;
 
