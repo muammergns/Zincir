@@ -17,8 +17,8 @@ internal sealed partial class Program
 
     public static AppBuilder BuildAvaloniaApp()
     {
-        Console.WriteLine(@"BuildAvaloniaApp()");
         PlatformServices.NotificationServiceFactory = () => new BrowserNotificationService();
+        PlatformServices.StorageServiceFactory = () => new BrowserStorageService();
         return AppBuilder.Configure<App>();
     }
 }

@@ -1,11 +1,10 @@
-using System;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
-using Avalonia.Controls.Platform;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using ZincirApp.Extensions;
 using ZincirApp.Services;
@@ -27,8 +26,11 @@ public class App : Application
         var collection = new ServiceCollection();
         
         collection.AddSingleton<INavigationService, NavigationService>();
-        collection.AddTransient<ISettingsService, SettingsService>();
-        collection.AddTransient<IStorageService, StorageService>();
+        collection.AddSingleton<ISettingsService, SettingsService>();
+        collection.AddSingleton<IStorageService>(_ => 
+            PlatformServices.StorageServiceFactory != null ?
+                PlatformServices.StorageServiceFactory() :
+                new StorageService());
         
         AddViews(collection);
         
@@ -42,11 +44,11 @@ public class App : Application
                 break;
         }
 
-        collection.AddTransient<INotificationService>(sp => 
+        collection.AddTransient<INotificationService>(_ => 
             PlatformServices.NotificationServiceFactory != null ? 
                 PlatformServices.NotificationServiceFactory() : 
                 new NotificationService(new SingleViewMessageBoxService()));
-        collection.AddTransient<ITimerService>(sp => 
+        collection.AddTransient<ITimerService>(_ => 
             PlatformServices.TimerServiceFactory != null ? 
                 PlatformServices.TimerServiceFactory() : 
                 new TimerService());
@@ -55,8 +57,11 @@ public class App : Application
         var services = collection.BuildServiceProvider();
         
         var settings = services.GetRequiredService<ISettingsService>();
-        settings.ApplySettings(settings.GetSettings());
-        
+        Dispatcher.UIThread.InvokeAsync( async () =>
+        {
+            var upsetting = await settings.GetSettings();
+            settings.ApplySettings(upsetting);
+        });
         switch (ApplicationLifetime)
         {
             case IClassicDesktopStyleApplicationLifetime desktop:
@@ -82,10 +87,10 @@ public class App : Application
         collection.AddSingleton<MainViewModel>();
         collection.AddTransient<SettingViewModel>();
         collection.AddTransient<AppearanceSettingsViewModel>();
-        collection.AddSingleton<TodayViewModel>();
-        collection.AddScoped<TodoViewModel>();
-        collection.AddScoped<HabitViewModel>();
-        collection.AddScoped<PomodoroViewModel>();
+        collection.AddTransient<TodayViewModel>();
+        collection.AddTransient<TodoViewModel>();
+        collection.AddTransient<HabitViewModel>();
+        collection.AddTransient<PomodoroViewModel>();
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

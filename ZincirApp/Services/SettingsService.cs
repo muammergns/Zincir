@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Styling;
 using Material.Colors;
@@ -18,44 +19,38 @@ namespace ZincirApp.Services;
 
 public interface ISettingsService
 {
-    AppSettings GetSettings();
-    void SaveSettings(AppSettings settings);
+    Task<AppSettings> GetSettings();
+    Task SaveSettings(AppSettings settings);
     void ApplySettings(AppSettings settings);
 }
 
 public class SettingsService(IStorageService storage) : ISettingsService
 {
-    public AppSettings GetSettings()
+    public async Task<AppSettings> GetSettings()
     {
         var defaultSettings = new AppSettings();
-        string? rawJson = storage.Load(KeyTexts.SettingsKey);
-        if (string.IsNullOrWhiteSpace(rawJson))
+        var result = await storage.LoadText(KeyTexts.SettingsKey);
+        if (!result.IsSuccess || result.Value is not { } rawJson || string.IsNullOrWhiteSpace(rawJson))
         {
-            SaveSettings(defaultSettings);
+            await SaveSettings(defaultSettings);
             return defaultSettings;
         }
         try
         {
-            if (!ValidateHash(rawJson))
+            var loadedSettings = JsonSerializer.Deserialize<AppSettings>(
+                rawJson, AppJsonContext.Default.AppSettings) ?? defaultSettings;
+            if (!ValidateHash(loadedSettings))
             {
-                SaveSettings(defaultSettings);
+                await SaveSettings(defaultSettings);
                 return defaultSettings;
             }
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate
-            };
-            var loadedSettings = JsonSerializer.Deserialize<AppSettings>(rawJson, options) ?? defaultSettings;
             if (IsSyncRequired(rawJson, loadedSettings))
-            {
-                SaveSettings(loadedSettings);
-            }
+                await SaveSettings(loadedSettings);
             return loadedSettings;
         }
         catch
         {
-            SaveSettings(defaultSettings);
+            await SaveSettings(defaultSettings);
             return defaultSettings;
         }
     }
@@ -69,13 +64,13 @@ public class SettingsService(IStorageService storage) : ISettingsService
         return !NormalizeJson(originalJson).Equals(serializedCurrent);
     }
 
-    public void SaveSettings(AppSettings settings)
+    public async Task SaveSettings(AppSettings settings)
     {
         settings.HashSignature = null; 
-        var jsonWithoutHash = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
+        string jsonWithoutHash = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
         settings.HashSignature = ComputeHash(jsonWithoutHash);
-        var finalJson = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
-        storage.Save(KeyTexts.SettingsKey, finalJson);
+        string finalJson = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
+        var result = await storage.SaveText(KeyTexts.SettingsKey, finalJson);
     }
 
     public void ApplySettings(AppSettings settings)
@@ -110,24 +105,20 @@ public class SettingsService(IStorageService storage) : ISettingsService
     private string ComputeHash(string text)
     {
         using var sha256 = SHA256.Create();
-        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text + KeyTexts.Salt));
+        byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text + KeyTexts.Salt));
         return Convert.ToBase64String(bytes);
     }
 
-    private bool ValidateHash(string fullJson)
+    private bool ValidateHash(AppSettings settings)
     {
         try
         {
-            using var doc = JsonDocument.Parse(fullJson);
-            if (!doc.RootElement.TryGetProperty(nameof(AppSettings.HashSignature), out var hashProp))
-                return false;
-            string? storedHash = hashProp.GetString();
-            var options = new JsonSerializerOptions { WriteIndented = false };
-            var tempObj = JsonSerializer.Deserialize<AppSettings>(fullJson, options);
-            if (tempObj == null) return false;
-            tempObj.HashSignature = null;
-            string recomputedHash = ComputeHash(JsonSerializer.Serialize(tempObj, AppJsonContext.Default.AppSettings));
-
+            string? storedHash = settings.HashSignature; 
+            if (string.IsNullOrWhiteSpace(storedHash)) return false;
+            settings.HashSignature = null; 
+            string jsonWithoutHash = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
+            settings.HashSignature = storedHash;
+            string recomputedHash = ComputeHash(jsonWithoutHash);
             return storedHash == recomputedHash;
         }
         catch { return false; }
@@ -138,7 +129,7 @@ public class SettingsService(IStorageService storage) : ISettingsService
         try
         {
             using var doc = JsonDocument.Parse(json);
-            return JsonSerializer.Serialize(doc, new JsonSerializerOptions { WriteIndented = false });
+            return JsonSerializer.Serialize(doc, AppJsonContext.Default.AppSettings);
         }
         catch
         {

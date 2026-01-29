@@ -10,20 +10,22 @@
         <StackPanel>
             <templates:SettingControl Header="{x:Static ui:UiTexts.ThemeLabel}" Description="{x:Static ui:UiTexts.ThemeDescription}">
                 <templates:SettingControl.SettingContent>
-                    <ComboBox Name="ThemeComboBox">
-                        <ComboBoxItem Content="{x:Static ui:UiTexts.Light}" Tag="Light"/>
-                        <ComboBoxItem Content="{x:Static ui:UiTexts.Dark}" Tag="Dark"/>
+                    <ComboBox Name="ThemeComboBox" 
+                              ItemsSource="{Binding ThemeTypes}"
+                              SelectedItem="{Binding ThemeSelectedItem, Mode=TwoWay}">
                     </ComboBox>
                 </templates:SettingControl.SettingContent>
             </templates:SettingControl>
             <templates:SettingControl Header="{x:Static ui:UiTexts.PrimaryColorLabel}" Description="{x:Static ui:UiTexts.PrimaryColorDescription}">
                 <templates:SettingControl.SettingContent>
-                    <ComboBox Name="PrimaryColorComboBox"/>
+                    <ComboBox Name="PrimaryColorComboBox" ItemsSource="{Binding ThemeColors}"
+                              SelectedItem="{Binding PrimarySelectedItem, Mode=TwoWay}"/>
                 </templates:SettingControl.SettingContent>
             </templates:SettingControl>
             <templates:SettingControl Header="{x:Static ui:UiTexts.SecondaryColorLabel}" Description="{x:Static ui:UiTexts.SecondaryColorDescription}">
                 <templates:SettingControl.SettingContent>
-                    <ComboBox Name="SecondaryColorComboBox"/>
+                    <ComboBox Name="SecondaryColorComboBox" ItemsSource="{Binding ThemeColors}"
+                              SelectedItem="{Binding SecondarySelectedItem, Mode=TwoWay}"/>
                 </templates:SettingControl.SettingContent>
             </templates:SettingControl>
         </StackPanel>

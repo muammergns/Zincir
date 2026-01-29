@@ -11,16 +11,16 @@ public partial class BrowserNotificationService : INotificationService
 {
 
     // JavaScript modülündeki fonksiyonları bağlıyoruz
-    [JSImport("enableWakeLock", "notifications")]
+    [JSImport("enableWakeLock", "NotificationModule")]
     private static partial Task JS_EnableWakeLock();
 
-    [JSImport("disableWakeLock", "notifications")]
+    [JSImport("disableWakeLock", "NotificationModule")]
     private static partial void JS_DisableWakeLock();
 
-    [JSImport("playBell", "notifications")]
+    [JSImport("playBell", "NotificationModule")]
     private static partial void JS_PlayBell();
     
-    [JSImport("initAudio", "notifications")]
+    [JSImport("initAudio", "NotificationModule")]
     private static partial void JS_InitAudio();
 
     private bool _moduleLoaded = false;
@@ -30,7 +30,7 @@ public partial class BrowserNotificationService : INotificationService
         if (!_moduleLoaded)
         {
             // JavaScript dosyasını modül olarak sisteme tanıtıyoruz
-            await JSHost.ImportAsync("notifications", "/notifications.js");
+            await JSHost.ImportAsync("NotificationModule", "/notifications.js");
             _moduleLoaded = true;
         }
     }
@@ -42,7 +42,6 @@ public partial class BrowserNotificationService : INotificationService
 
     public Task<bool> CheckPermission()
     {
-        Console.WriteLine("CheckPermission");
         return Task.FromResult(true);
     }
 

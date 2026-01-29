@@ -8,6 +8,25 @@
              mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
              x:Class="ZincirApp.Views.SettingView">
     
-    SettingView
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <templates:SettingControl Header="{x:Static ui:UiTexts.Language}" Description="{x:Static ui:UiTexts.NeedReboot}">
+                <templates:SettingControl.SettingContent>
+                    <ComboBox Name="LanguageComboBox" 
+                              ItemsSource="{Binding Languages}"
+                              SelectedItem="{Binding LanguageSelectedItem, Mode=TwoWay}">
+                    </ComboBox>
+                </templates:SettingControl.SettingContent>
+            </templates:SettingControl>
+            <templates:SettingControl Header="{x:Static ui:UiTexts.ThemeLabel}" Description="{x:Static ui:UiTexts.ThemeDescription}">
+                <templates:SettingControl.SettingContent>
+                    <Button Name="AppearanceSettingsButton" CornerRadius="20"
+                            Command="{Binding OpenAppearanceSettingsCommand}"
+                            Content="{avalonia:MaterialIconTextExt Kind=ArrowRight, TextFirst=True, Text={x:Static ui:UiTexts.Dark}}"/>
+                </templates:SettingControl.SettingContent>
+            </templates:SettingControl>
+
+        </StackPanel>
+    </ScrollViewer>
     
 </UserControl>
