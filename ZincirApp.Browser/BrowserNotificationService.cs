@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 using ZincirApp.Services;
@@ -9,8 +8,6 @@ namespace ZincirApp.Browser;
 
 public partial class BrowserNotificationService : INotificationService
 {
-
-    // JavaScript modülündeki fonksiyonları bağlıyoruz
     [JSImport("enableWakeLock", "NotificationModule")]
     private static partial Task JS_EnableWakeLock();
 
@@ -29,7 +26,6 @@ public partial class BrowserNotificationService : INotificationService
     {
         if (!_moduleLoaded)
         {
-            // JavaScript dosyasını modül olarak sisteme tanıtıyoruz
             await JSHost.ImportAsync("NotificationModule", "/notifications.js");
             _moduleLoaded = true;
         }
@@ -73,7 +69,6 @@ public partial class BrowserNotificationService : INotificationService
 
     public void ShowNotification(string title, string message)
     {
-        Console.WriteLine(title);
-        //JS_PlayBell();
+        
     }
 }

@@ -1,5 +1,4 @@
 export function setItem(key, value) {
-    console.log(`[StorageService] Save key: ${key}, Value: ${value}`);
     try {
         localStorage.setItem(key, value);
         return "ok";
@@ -9,7 +8,5 @@ export function setItem(key, value) {
 }
 
 export function getItem(key) {
-    const value = localStorage.getItem(key);
-    console.log(`[StorageService] Reading key: ${key}, Value: ${value}`);
-    return value;
+    return localStorage.getItem(key);
 }
