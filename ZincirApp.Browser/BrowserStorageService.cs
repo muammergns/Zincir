@@ -78,7 +78,6 @@ public partial class BrowserStorageService : IStorageService
             var result = data == null 
                 ? StorageResult<string>.Failure(StorageError.NotFound) 
                 : StorageResult<string>.Success(data);
-            Console.WriteLine($@"Loading {result.Value}");
             return result;
         }
         catch (Exception ex)

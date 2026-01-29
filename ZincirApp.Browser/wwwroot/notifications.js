@@ -1,5 +1,3 @@
-// wwwroot/notifications.js
-
 let wakeLock = null;
 let videoElement = null;
 
