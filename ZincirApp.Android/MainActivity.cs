@@ -20,6 +20,7 @@ public class MainActivity : AvaloniaMainActivity<App>
         
         PlatformServices.TimerServiceFactory = () => new AndroidTimerService();
         PlatformServices.NotificationServiceFactory = () => new AndroidNotificationService(this, PlatformServices.TimerServiceFactory.Invoke());
+        PlatformServices.DeviceIdServiceFactory = () => new AndroidDeviceIdService(this);
         
         return base.CustomizeAppBuilder(builder)
             .WithInterFont();

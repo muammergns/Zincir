@@ -1,4 +1,4 @@
-using ZincirApp.Services;
+using ZincirApp.Models;
 
 namespace ZincirApp.Extensions;
 

@@ -11,3 +11,5 @@ riderModule.iml
 ZincirApp.Android/google-services.json
 ZincirApp/Assets/KeyTexts.cs
 ZincirApp.sln.DotSettings.user
+ZincirApp/Assets/Ids.cs
+ZincirApp/Assets/InternalConfigurationProvider.cs

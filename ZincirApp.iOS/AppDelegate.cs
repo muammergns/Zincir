@@ -19,6 +19,7 @@ public partial class AppDelegate : AvaloniaAppDelegate<App>
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
         PlatformServices.NotificationServiceFactory = () => new UosNotificationService();
+        PlatformServices.DeviceIdServiceFactory = () => new UosDeviceIdService();
         return base.CustomizeAppBuilder(builder)
             .WithInterFont();
     }

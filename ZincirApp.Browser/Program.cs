@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Browser;
 using ZincirApp;
@@ -19,6 +18,7 @@ internal sealed partial class Program
     {
         PlatformServices.NotificationServiceFactory = () => new BrowserNotificationService();
         PlatformServices.StorageServiceFactory = () => new BrowserStorageService();
+        PlatformServices.AesServiceFactory = () => new BrowserAesService();
         return AppBuilder.Configure<App>();
     }
 }

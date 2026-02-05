@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -6,6 +7,7 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using ZincirApp.Assets;
 using ZincirApp.Extensions;
 using ZincirApp.Services;
 using ZincirApp.ViewModels;
@@ -22,7 +24,6 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        Debug.WriteLine("OnFrameworkInitializationCompleted", "MainActivity");
         var collection = new ServiceCollection();
         
         collection.AddSingleton<INavigationService, NavigationService>();
@@ -31,7 +32,14 @@ public class App : Application
             PlatformServices.StorageServiceFactory != null ?
                 PlatformServices.StorageServiceFactory() :
                 new StorageService());
-        
+        collection.AddSingleton<IDeviceIdService>(_ => 
+            PlatformServices.DeviceIdServiceFactory != null ?
+                PlatformServices.DeviceIdServiceFactory() :
+                new DeviceIdService());
+        collection.AddSingleton<IAesService>(_ => 
+            PlatformServices.AesServiceFactory != null ?
+                PlatformServices.AesServiceFactory() :
+                new AesService());
         AddViews(collection);
         
         switch (ApplicationLifetime)

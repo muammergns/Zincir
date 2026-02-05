@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
+using ZincirApp.Models;
 using ZincirApp.Services;
 
 namespace ZincirApp.Browser;
@@ -51,11 +52,12 @@ public partial class BrowserStorageService : IStorageService
     private async Task<StorageResult> SaveToLocalStorage(string key, string data)
     {
         await Task.Yield();
+        Console.WriteLine($@"Saving {data} to {key}");
         try
         {
             await EnsureModuleLoaded();
-            SetItemJs(key, data);
-            return StorageResult.Success();
+            string result = SetItemJs(key, data);
+            return StorageResult<string>.Success(result);
         }
         catch (JSException ex) when (ex.Message.Contains("QuotaExceededError"))
         {
@@ -69,16 +71,14 @@ public partial class BrowserStorageService : IStorageService
 
     private async Task<StorageResult<string>> LoadFromLocalStorage(string key)
     {
+        Console.WriteLine($@"Loading {key}");
         await Task.Yield();
         try
         {
             await EnsureModuleLoaded();
             string? data = GetItemJs(key);
-            
-            var result = data == null 
-                ? StorageResult<string>.Failure(StorageError.NotFound) 
-                : StorageResult<string>.Success(data);
-            return result;
+            Console.WriteLine($@"Loaded {data}");
+            return data==null ? StorageResult<string>.Failure(StorageError.NotFound) : StorageResult<string>.Success(data);
         }
         catch (Exception ex)
         {

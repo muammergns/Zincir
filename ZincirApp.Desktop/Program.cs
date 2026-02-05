@@ -1,5 +1,6 @@
 ﻿using System;
 using Avalonia;
+using ZincirApp.Extensions;
 
 namespace ZincirApp.Desktop;
 
@@ -14,8 +15,11 @@ sealed class Program
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    {
+        PlatformServices.DeviceIdServiceFactory = () => new DesktopDeviceIdService();
+        return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();
+    }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -24,12 +23,18 @@ public interface ISettingsService
     void ApplySettings(AppSettings settings);
 }
 
-public class SettingsService(IStorageService storage) : ISettingsService
+public class SettingsService(IStorageService storage, IAesService aesService) : ISettingsService
 {
+    private AppSettings? _appSettings;
+    private const string SettingsFileName  = "user_settings";
     public async Task<AppSettings> GetSettings()
     {
-        var defaultSettings = new AppSettings();
-        var result = await storage.LoadText(KeyTexts.SettingsKey);
+        if (_appSettings != null) return _appSettings;
+        var defaultSettings = new AppSettings
+        {
+            UserId = Keys.UserId
+        };
+        var result = await storage.LoadText(SettingsFileName);
         if (!result.IsSuccess || result.Value is not { } rawJson || string.IsNullOrWhiteSpace(rawJson))
         {
             await SaveSettings(defaultSettings);
@@ -37,16 +42,18 @@ public class SettingsService(IStorageService storage) : ISettingsService
         }
         try
         {
+            string decryptedJson = await aesService.Decrypt(rawJson, Keys.SettingsId, Keys.Salt, Keys.Iterations);
             var loadedSettings = JsonSerializer.Deserialize<AppSettings>(
-                rawJson, AppJsonContext.Default.AppSettings) ?? defaultSettings;
+                decryptedJson, AppJsonContext.Default.AppSettings) ?? defaultSettings;
             if (!ValidateHash(loadedSettings))
             {
                 await SaveSettings(defaultSettings);
                 return defaultSettings;
             }
-            if (IsSyncRequired(rawJson, loadedSettings))
+            if (IsSyncRequired(decryptedJson, loadedSettings))
                 await SaveSettings(loadedSettings);
-            return loadedSettings;
+            _appSettings = loadedSettings;
+            return _appSettings;
         }
         catch
         {
@@ -70,7 +77,8 @@ public class SettingsService(IStorageService storage) : ISettingsService
         string jsonWithoutHash = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
         settings.HashSignature = ComputeHash(jsonWithoutHash);
         string finalJson = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
-        var result = await storage.SaveText(KeyTexts.SettingsKey, finalJson);
+        string encryptedJson = await aesService.Encrypt(finalJson, Keys.SettingsId, Keys.Salt, Keys.Iterations);
+        await storage.SaveText(SettingsFileName, encryptedJson);
     }
 
     public void ApplySettings(AppSettings settings)
@@ -105,7 +113,7 @@ public class SettingsService(IStorageService storage) : ISettingsService
     private string ComputeHash(string text)
     {
         using var sha256 = SHA256.Create();
-        byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text + KeyTexts.Salt));
+        byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text + Keys.SettingsId));
         return Convert.ToBase64String(bytes);
     }
 
