@@ -19,19 +19,8 @@
 
     <ItemGroup>
         <PackageReference Include="Avalonia.Android"/>
-        <PackageReference Include="Avalonia.Controls.ItemsRepeater" />
-        <PackageReference Include="Material.Avalonia" />
-        <PackageReference Include="Material.Icons.Avalonia" />
-        <PackageReference Include="MessageBox.Avalonia" />
-        <PackageReference Include="MessageBox.Avalonia.Markdown" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen"/>
-        <PackageReference Include="Xaml.Behaviors.Interactions" />
+
     </ItemGroup>
 
     <ItemGroup>

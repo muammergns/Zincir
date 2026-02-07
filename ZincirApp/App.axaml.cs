@@ -93,12 +93,12 @@ public class App : Application
     private static void AddViews(ServiceCollection collection)
     {
         collection.AddSingleton<MainViewModel>();
-        collection.AddTransient<SettingViewModel>();
-        collection.AddTransient<AppearanceSettingsViewModel>();
-        collection.AddTransient<TodayViewModel>();
-        collection.AddTransient<TodoViewModel>();
-        collection.AddTransient<HabitViewModel>();
-        collection.AddTransient<PomodoroViewModel>();
+        collection.AddSingleton<SettingViewModel>();
+        collection.AddSingleton<AppearanceSettingsViewModel>();
+        collection.AddSingleton<TodayViewModel>();
+        collection.AddSingleton<TodoViewModel>();
+        collection.AddSingleton<HabitViewModel>();
+        collection.AddSingleton<PomodoroViewModel>();
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

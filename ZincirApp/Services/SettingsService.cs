@@ -64,10 +64,7 @@ public class SettingsService(IStorageService storage, IAesService aesService) : 
 
     private bool IsSyncRequired(string originalJson, AppSettings loadedSettings)
     {
-        string? currentHash = loadedSettings.HashSignature;
-        loadedSettings.HashSignature = null;
         string serializedCurrent = JsonSerializer.Serialize(loadedSettings, AppJsonContext.Default.AppSettings);
-        loadedSettings.HashSignature = currentHash;
         return !NormalizeJson(originalJson).Equals(serializedCurrent);
     }
 

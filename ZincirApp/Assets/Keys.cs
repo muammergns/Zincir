@@ -1,6 +1,6 @@
 namespace ZincirApp.Assets;
 
-public class Keys
+public static class Keys
 {
     public static string SettingsId => Ids.SettingsIdx;
     public static string DeviceId => Ids.DeviceIdx;
