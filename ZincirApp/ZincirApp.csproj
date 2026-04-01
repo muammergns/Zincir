@@ -23,7 +23,6 @@
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm"/>
-        <PackageReference Include="LibVLCSharp" />
         <PackageReference Include="Material.Avalonia" />
         <PackageReference Include="Material.Icons.Avalonia" />
         <PackageReference Include="MessageBox.Avalonia" />
@@ -34,6 +33,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        
         <PackageReference Include="Xaml.Behaviors.Interactions" />
     </ItemGroup>
     

@@ -31,6 +31,6 @@ public class NotificationService(IMessageService messageService) : INotification
 
     public void ShowNotification(string title, string message)
     {
-        messageService.ShowAlert(title, message);
+        messageService.ShowAlert(message, title);
     }
 }

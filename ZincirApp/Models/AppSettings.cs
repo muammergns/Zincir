@@ -1,4 +1,4 @@
-using ZincirApp.Assets;
+using System;
 
 namespace ZincirApp.Models;
 
@@ -9,8 +9,7 @@ public class AppSettings
     public string PrimaryColor { get; set; } = "Amber";
     public string UserId {get; set;} = "";
     public string SecondaryColor { get; set; } = "Pink";
-    /*  Red, Pink, Purple, DeepPurple, Indigo, Blue, LightBlue
-        Cyan, Teal, Green, LightGreen, Lime, Yellow, Amber
-        Orange, DeepOrange, Brown, Grey, BlueGrey */
+    public DateTime? CurrentSessionStartTime { get; set; }
+    public TimeSpan AccumulatedTime { get; set; } = TimeSpan.Zero;
     public string? HashSignature { get; set; }
 }

@@ -11,6 +11,27 @@ namespace ZincirApp.Extensions;
 
 public static class UiUtils
 {
+    
+    public static string FormatTimeSpan(TimeSpan t)
+    {
+        if (t.TotalDays >= 1)
+        {
+            return $"{t.Days}.{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
+        }
+        
+        if (t.TotalHours >= 1)
+        {
+            return $"{t.Hours}:{t.Minutes:D2}:{t.Seconds:D2}";
+        }
+        
+        if (t.TotalMinutes >= 1)
+        {
+            return $"{t.Minutes:D2}:{t.Seconds:D2}";
+        }
+
+        return t.Seconds.ToString();
+    }
+    
     public static void SetMaterialBackground(Control? control, string resourceKey)
     {
         if (control == null) return;

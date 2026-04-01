@@ -17,9 +17,7 @@ public class MainActivity : AvaloniaMainActivity<App>
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
-        
-        PlatformServices.TimerServiceFactory = () => new AndroidTimerService();
-        PlatformServices.NotificationServiceFactory = () => new AndroidNotificationService(this, PlatformServices.TimerServiceFactory.Invoke());
+        PlatformServices.NotificationServiceFactory = () => new AndroidNotificationService(this);
         PlatformServices.DeviceIdServiceFactory = () => new AndroidDeviceIdService(this);
         
         return base.CustomizeAppBuilder(builder)

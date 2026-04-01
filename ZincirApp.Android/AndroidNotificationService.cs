@@ -5,6 +5,7 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
+using Android.Provider;
 using Android.Util;
 using AndroidX.Core.App;
 using AndroidX.Core.Content;
@@ -17,19 +18,14 @@ public class AndroidNotificationService : INotificationService
 {
 
     private readonly Activity _activity;
-    private readonly AndroidTimerService? _timerService;
     internal static TaskCompletionSource<bool>? PermissionTcs;
     private const string ChannelId = "default_channel";
     private const string ChannelName = "Default";
     private const string ChannelDescription = "Default Channel";
 
-    public AndroidNotificationService(Activity activity, ITimerService timerService)
+    public AndroidNotificationService(Activity activity)
     {
         _activity = activity;
-        if (timerService is AndroidTimerService ts)
-        {
-            _timerService = ts;
-        }
         CreateNotificationChannel();
     }
     
@@ -68,7 +64,12 @@ public class AndroidNotificationService : INotificationService
 
     public void ScheduleNotification(string title, string message, TimeSpan delay)
     {
-        _timerService?.StartTimer(Convert.ToUInt32(delay.TotalSeconds));
+        var intent = new Intent(AlarmClock.ActionSetTimer);
+        intent.PutExtra(AlarmClock.ExtraLength, delay.Minutes * 60 + delay.Seconds);
+        intent.PutExtra(AlarmClock.ExtraSkipUi, true);
+        intent.PutExtra(AlarmClock.ExtraMessage, message);
+        intent.AddFlags(ActivityFlags.NewTask);
+        Application.Context.StartActivity(intent);
     }
     
     public void ShowNotification(string title, string message)

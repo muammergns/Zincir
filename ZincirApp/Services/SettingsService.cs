@@ -76,6 +76,7 @@ public class SettingsService(IStorageService storage, IAesService aesService) : 
         string finalJson = JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings);
         string encryptedJson = await aesService.Encrypt(finalJson, Keys.SettingsId, Keys.Salt, Keys.Iterations);
         await storage.SaveText(SettingsFileName, encryptedJson);
+        _appSettings = settings;
     }
 
     public void ApplySettings(AppSettings settings)
@@ -105,6 +106,7 @@ public class SettingsService(IStorageService storage, IAesService aesService) : 
         Locale.UiTexts.Culture = new CultureInfo(settings.Language);
         Thread.CurrentThread.CurrentCulture = new CultureInfo(settings.Language);
         Thread.CurrentThread.CurrentUICulture = new CultureInfo(settings.Language);
+        _appSettings = settings;
     }
 
     private string ComputeHash(string text)

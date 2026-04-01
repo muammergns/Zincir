@@ -1,5 +1,3 @@
-using System;
-using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
@@ -7,7 +5,6 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using ZincirApp.Assets;
 using ZincirApp.Extensions;
 using ZincirApp.Services;
 using ZincirApp.ViewModels;
@@ -36,7 +33,7 @@ public class App : Application
             PlatformServices.DeviceIdServiceFactory != null ?
                 PlatformServices.DeviceIdServiceFactory() :
                 new DeviceIdService());
-        collection.AddSingleton<IAesService>(_ => 
+        collection.AddTransient<IAesService>(_ => 
             PlatformServices.AesServiceFactory != null ?
                 PlatformServices.AesServiceFactory() :
                 new AesService());
@@ -56,11 +53,7 @@ public class App : Application
             PlatformServices.NotificationServiceFactory != null ? 
                 PlatformServices.NotificationServiceFactory() : 
                 new NotificationService(new SingleViewMessageBoxService()));
-        collection.AddTransient<ITimerService>(_ => 
-            PlatformServices.TimerServiceFactory != null ? 
-                PlatformServices.TimerServiceFactory() : 
-                new TimerService());
-        
+        collection.AddSingleton<ITimerService, TimerService>();
         
         var services = collection.BuildServiceProvider();
         
