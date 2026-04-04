@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
+             x:Class="ZincirApp.Views.PomodoroHistoryView">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ItemsRepeater ItemsSource="{Binding (vm:PomodoroHistoryViewModel).PomodoroHistory}">
+                <ItemsRepeater.Layout>
+                    <StackLayout Orientation="Vertical"/>
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate DataType="vm:PomodoroHistoryModel">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" RowSpacing="8" RowDefinitions="Auto,Auto" Margin="8">
+                            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding TitleText}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding CreateDateText}"  VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding SessionDurationText}" Grid.RowSpan="2" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <Button Grid.Column="2" Grid.Row="0"  Grid.RowSpan="2" Classes="Flat" Content="{avalonia:MaterialIconTextExt Kind=Delete}"
+                                    Command="{Binding $parent[ItemsRepeater].((vm:PomodoroHistoryViewModel)DataContext).DeleteItemCommand, FallbackValue={x:Null}}"
+                                    CommandParameter="{Binding}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ScrollViewer>
+    </Grid>
+    
+</UserControl>

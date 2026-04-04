@@ -5,6 +5,7 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using ZincirApp.Assets;
 using ZincirApp.Extensions;
 using ZincirApp.Services;
 using ZincirApp.ViewModels;
@@ -29,6 +30,9 @@ public class App : Application
             PlatformServices.StorageServiceFactory != null ?
                 PlatformServices.StorageServiceFactory() :
                 new StorageService());
+
+        collection.AddSingleton<ZincirDbService>();
+
         collection.AddSingleton<IDeviceIdService>(_ => 
             PlatformServices.DeviceIdServiceFactory != null ?
                 PlatformServices.DeviceIdServiceFactory() :
@@ -49,7 +53,7 @@ public class App : Application
                 break;
         }
 
-        collection.AddTransient<INotificationService>(_ => 
+        collection.AddSingleton<INotificationService>(_ => 
             PlatformServices.NotificationServiceFactory != null ? 
                 PlatformServices.NotificationServiceFactory() : 
                 new NotificationService(new SingleViewMessageBoxService()));
@@ -86,12 +90,13 @@ public class App : Application
     private static void AddViews(ServiceCollection collection)
     {
         collection.AddSingleton<MainViewModel>();
-        collection.AddSingleton<SettingViewModel>();
-        collection.AddSingleton<AppearanceSettingsViewModel>();
+        collection.AddTransient<SettingViewModel>();
+        collection.AddTransient<AppearanceSettingsViewModel>();
         collection.AddSingleton<TodayViewModel>();
         collection.AddSingleton<TodoViewModel>();
         collection.AddSingleton<HabitViewModel>();
-        collection.AddSingleton<PomodoroViewModel>();
+        collection.AddTransient<PomodoroViewModel>();
+        collection.AddTransient<PomodoroHistoryViewModel>();
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

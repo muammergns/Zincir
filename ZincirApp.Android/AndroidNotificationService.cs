@@ -65,7 +65,7 @@ public class AndroidNotificationService : INotificationService
     public void ScheduleNotification(string title, string message, TimeSpan delay)
     {
         var intent = new Intent(AlarmClock.ActionSetTimer);
-        intent.PutExtra(AlarmClock.ExtraLength, delay.Minutes * 60 + delay.Seconds);
+        intent.PutExtra(AlarmClock.ExtraLength, delay.Hours * 3600 + delay.Minutes * 60 + delay.Seconds);
         intent.PutExtra(AlarmClock.ExtraSkipUi, true);
         intent.PutExtra(AlarmClock.ExtraMessage, message);
         intent.AddFlags(ActivityFlags.NewTask);

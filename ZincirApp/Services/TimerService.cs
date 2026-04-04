@@ -13,9 +13,8 @@ public interface ITimerService
     bool IsRunning { get; }
     TimeSpan ElapsedTime { get; }
     void Start();
-    void Pause();
     void Reset();
-    void LoadState(TimeSpan accumulatedTime, DateTime? currentSessionStartTime);
+    void LoadState(TimeSpan accumulatedTime, DateTime? currentSessionStartTime, string timerTitle);
 }
 
 
@@ -25,7 +24,7 @@ public class TimerService : ITimerService
     
     public event EventHandler<TimeSpan>? Tick;
     
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty; 
 
     public DateTime? CurrentSessionStartTime { get; set; }
     public TimeSpan AccumulatedTime { get; set; } = TimeSpan.Zero;
@@ -54,10 +53,11 @@ public class TimerService : ITimerService
         _timer.Tick += (_, _) => RaiseTick();
     }
 
-    public void LoadState(TimeSpan accumulatedTime, DateTime? currentSessionStartTime)
+    public void LoadState(TimeSpan accumulatedTime, DateTime? currentSessionStartTime,  string timerTitle)
     {
         AccumulatedTime = accumulatedTime;
         CurrentSessionStartTime = currentSessionStartTime;
+        Title = timerTitle;
 
         if (CurrentSessionStartTime.HasValue)
         {
@@ -71,17 +71,11 @@ public class TimerService : ITimerService
         if (IsRunning) return;
 
         CurrentSessionStartTime = DateTime.Now;
+        if (string.IsNullOrEmpty(Title))
+        {
+            Title = $@"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}";
+        }
         _timer.Start();
-        RaiseTick();
-    }
-
-    public void Pause()
-    {
-        if (!IsRunning) return;
-
-        AccumulatedTime += (DateTime.Now - CurrentSessionStartTime!.Value);
-        CurrentSessionStartTime = null;
-        _timer.Stop();
         RaiseTick();
     }
 
@@ -90,6 +84,7 @@ public class TimerService : ITimerService
         _timer.Stop();
         CurrentSessionStartTime = null;
         AccumulatedTime = TimeSpan.Zero;
+        Title = string.Empty;
         RaiseTick();
     }
 

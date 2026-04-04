@@ -33,6 +33,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" />
         
         <PackageReference Include="Xaml.Behaviors.Interactions" />
     </ItemGroup>

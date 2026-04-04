@@ -24,7 +24,7 @@ public partial class MainView : UserControl
     public MainView()
     {
         InitializeComponent();
-        Loaded += (sender, args) =>
+        Loaded += (_, _) =>
         {
             InsetsManager = TopLevel.GetTopLevel(this)?.InsetsManager;
             if (InsetsManager is null) return;
@@ -32,7 +32,7 @@ public partial class MainView : UserControl
             Padding = new Thickness(im.Left + 4, im.Top + 4, im.Right + 4, im.Bottom + 4) ;
             InsetsManager.SafeAreaChanged += SafeAreaChanged;
         };
-        Unloaded += (sender, args) =>
+        Unloaded += (_, _) =>
         {
             if (InsetsManager is null) return;
             InsetsManager.SafeAreaChanged -= SafeAreaChanged;
@@ -49,19 +49,19 @@ public partial class MainView : UserControl
             LeftDrawer.IsPaneOpen = false;
             LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
         };
-        RightPaneCloseButton.Click += (_, _) =>
-        {
-            RightDrawer.IsPaneOpen = false;
-            _isRightFocus = false;
-        };
+        RightPaneToggleButton.Content = "<";
         LeftPaneToggleButton.Content = LeftPaneCloseButton.Content = "<";
-        RightPaneCloseButton.Content = ">";
         LeftPaneToggleButton.Click += (_, _) =>
         {
             LeftDrawer.IsPaneOpen = !LeftDrawer.IsPaneOpen;
             LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
         };
-        LeftDrawer.PaneClosing += PanelClosing;
+        RightPaneToggleButton.Click += (_, _) =>
+        {
+            RightDrawer.IsPaneOpen = !RightDrawer.IsPaneOpen;
+            RightPaneToggleButton.Content = RightDrawer.IsPaneOpen ? ">" : "<";
+        };
+        LeftDrawer.PaneClosing += LeftPaneClosing;
         CenterDate.Text = LeftDate.Text = DateTime.Now.ToLongDateString();
     }
 
@@ -71,7 +71,7 @@ public partial class MainView : UserControl
         Padding = new Thickness(a.Left + 4, a.Top + 4, a.Right + 4, a.Bottom + 4) ;
     }
 
-    private void PanelClosing(object? sender, CancelRoutedEventArgs e)
+    private void LeftPaneClosing(object? sender, CancelRoutedEventArgs e)
     {
         if (e.Source is not SplitView splitView) return;
         if (splitView.Equals(LeftDrawer))
@@ -116,6 +116,7 @@ public partial class MainView : UserControl
         LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
         LeftDrawer.OpenPaneLength = _windowState is PaneState.Small ? _resizeWindowWidth : 250;
         LeftHeaderDock.IsVisible = _windowState is PaneState.Small;
+        RightPaneToggleButton.IsVisible = LeftPaneToggleButton.IsVisible = _windowState is not PaneState.Large;
     }
     private void UpdatePanelLayoutState()
     {
@@ -126,10 +127,10 @@ public partial class MainView : UserControl
         RightDrawer.DisplayMode = _panelState is PaneState.Large ? 
             SplitViewDisplayMode.Inline :  SplitViewDisplayMode.Overlay;
         RightDrawer.IsPaneOpen = _panelState is PaneState.Large || _isRightFocus;
-        RightHeaderDock.IsVisible = _panelState is not PaneState.Large;
         RightDrawer.OpenPaneLength = 
             _panelState is PaneState.Small or PaneState.Medium ? 
                 _resizePanelWidth : _resizePanelWidth * 0.5;
+        RightPaneToggleButton.Content = RightDrawer.IsPaneOpen ? ">" : "<";
     }
     private void OnWindowSizeChanged(object? sender, SizeChangedEventArgs e)
     {

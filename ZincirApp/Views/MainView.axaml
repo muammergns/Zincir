@@ -20,7 +20,7 @@
                     <Border Classes="Card" Grid.Row="0" Padding="0" Name="LeftHeaderDock">
                         <DockPanel>
                             <Button DockPanel.Dock="Right" Classes="Flat" Content="-" Name="LeftPaneCloseButton"/>
-                            <TextBlock Name="LeftDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Name="LeftDate" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8"/>
                         </DockPanel>
                     </Border>
                     
@@ -54,18 +54,13 @@
                 <Border Classes="Card" Padding="0"  DockPanel.Dock="Top">
                     <DockPanel>
                         <Button DockPanel.Dock="Left" Classes="Flat" Name="LeftPaneToggleButton"/>
-                        <TextBlock Name="CenterDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <Button DockPanel.Dock="Right" Classes="Flat" Name="RightPaneToggleButton"/>
+                        <TextBlock Name="CenterDate" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8"/>
                     </DockPanel>
                 </Border>
                 <SplitView Name="RightDrawer" IsPaneOpen="{Binding IsRightPaneOpen, Mode=TwoWay}" OpenPaneLength="300" PanePlacement="Right" DisplayMode="Overlay">
                     <SplitView.Pane>
                         <DockPanel GotFocus="RightDrawer_OnGotFocus">
-                            <Border Classes="Card" Padding="0" DockPanel.Dock="Top" Name="RightHeaderDock">
-                                <DockPanel>
-                                    <Button DockPanel.Dock="Left" Classes="Flat" Name="RightPaneCloseButton"/>
-                                    <TextBlock Name="RightDate" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </DockPanel>
-                            </Border>
                             <TransitioningContentControl 
                                 Name="RightContent"
                                 Background="{DynamicResource MaterialPaperBrush}"

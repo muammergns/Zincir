@@ -11,6 +11,7 @@ public interface INavigationService
     ViewModelBase? SubView { get; }
     void NavigateTo<T>() where T : ViewModelBase;
     void NavigateToSub<T>() where T : ViewModelBase;
+    bool DrawerState { get; set; }
 }
 
 public class NavigationService(IServiceProvider serviceProvider) : ObservableObject, INavigationService
@@ -53,4 +54,6 @@ public class NavigationService(IServiceProvider serviceProvider) : ObservableObj
             Console.WriteLine(e);
         }
     }
+
+    public bool DrawerState { get; set; }
 }

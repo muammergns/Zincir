@@ -4,27 +4,23 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
              x:Class="ZincirApp.Views.TodoView">
     <Grid RowDefinitions="*,Auto">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0" Grid.RowSpan="2">
-            <Border Padding="0,0,0,150">
-                <Border.Styles>
-                    <Style Selector="Button">
-                        <Setter Property="Height" Value="50"/>
-                    </Style>
-                </Border.Styles>
-                <StackPanel Spacing="20">
-                    <Button Content="button"/>
-                    <Button Content="button"/>
-                    <Button Content="button"/>
-                    <Button Content="button"/>
-                    <Button Content="button"/>
-                </StackPanel>
-            </Border>
+            <ItemsRepeater>
+                <ItemsRepeater.Layout>
+                    <StackLayout Orientation="Vertical"/>
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
         </ScrollViewer>
-        <Button Grid.Row="1" Classes="Outline and Accent" CornerRadius="100" 
-                Padding="16" HorizontalAlignment="Right" FontSize="20"
-                Margin="10"
+        <Button Grid.Row="1" Classes="Outline" CornerRadius="100" 
+                Padding="16" HorizontalAlignment="Left" FontSize="20" Margin="10"
                 Content="{avalonia:MaterialIconTextExt Kind=Plus}"/>
     </Grid>
     

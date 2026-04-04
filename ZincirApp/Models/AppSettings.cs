@@ -11,5 +11,7 @@ public class AppSettings
     public string SecondaryColor { get; set; } = "Pink";
     public DateTime? CurrentSessionStartTime { get; set; }
     public TimeSpan AccumulatedTime { get; set; } = TimeSpan.Zero;
+    public DateTime? NotificationScheduleDate { get; set; }
+    public string SessionTitleText { get; set; } = "";
     public string? HashSignature { get; set; }
 }

@@ -2,17 +2,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
              mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="600"
-             xmlns:vm="using:ZincirApp.ViewModels"
-             x:DataType="vm:PomodoroViewModel"
              x:Class="ZincirApp.Views.PomodoroView">
     
     <Grid RowDefinitions="Auto, *, Auto" Margin="10">
         
         <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
-            <TextBlock Grid.Column="0" Text="ZİNCİR" FontSize="14" FontWeight="Bold" />
+            <TextBlock Grid.Column="0" Text="{Binding (vm:PomodoroViewModel).PomodoroTitleText}" FontSize="14" FontWeight="Bold" />
             <Border Grid.Column="1" Width="10">
-                <Ellipse VerticalAlignment="Center" Fill="{Binding StatusColor}" Width="20" Height="20"/>
+                <Ellipse VerticalAlignment="Center" Fill="{Binding (vm:PomodoroViewModel).StatusColor}" Width="20" Height="20"/>
             </Border>
         </Grid>
 
@@ -33,7 +32,7 @@
                          StrokeLineCap="Round"
                          Width="280" 
                          Height="280"
-                         StartAngle="{Binding ProgressValue}"
+                         StartAngle="{Binding (vm:PomodoroViewModel).ProgressValue}"
                          RenderTransform="rotate(-90deg)"
                          SweepAngle="0.001" />
                 </Viewbox>
@@ -41,7 +40,7 @@
             <Border>
                 <Viewbox>
                     <TextBlock Margin="8"
-                               Text="{Binding RemainingTimeFormatted}" 
+                               Text="{Binding (vm:PomodoroViewModel).RemainingTimeFormatted}" 
                                FontWeight="UltraLight"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
                     >0</TextBlock>
@@ -53,19 +52,17 @@
         <StackPanel Grid.Row="2" Spacing="10">
             <UniformGrid Columns="4" ColumnSpacing="10" HorizontalAlignment="Center">
                 <Button Classes="Outline" Content="5" Padding="20,10" 
-                        Command="{Binding SetTimerCommand}" CommandParameter="5"/>
+                        Command="{Binding (vm:PomodoroViewModel).SetTimerCommand}" CommandParameter="5"/>
                 <Button Classes="Outline" Content="15" Padding="20,10" 
-                        Command="{Binding SetTimerCommand}" CommandParameter="15"/>
+                        Command="{Binding (vm:PomodoroViewModel).SetTimerCommand}" CommandParameter="15"/>
                 <Button Classes="Outline" Content="25" Padding="20,10" 
-                        Command="{Binding SetTimerCommand}" CommandParameter="25"/>
+                        Command="{Binding (vm:PomodoroViewModel).SetTimerCommand}" CommandParameter="25"/>
                 <Button Classes="Outline" Content="60" Padding="20,10" 
-                        Command="{Binding SetTimerCommand}" CommandParameter="60"/>
+                        Command="{Binding (vm:PomodoroViewModel).SetTimerCommand}" CommandParameter="60"/>
             </UniformGrid>
-            <UniformGrid Columns="3" ColumnSpacing="10" HorizontalAlignment="Center">
-                <Button Content="Bitir" Command="{Binding ResetCommand}" />
-                <Button Content="Duraklat" Command="{Binding PauseCommand}" 
-                        Background="#7F1D1D"/>
-                <Button Content="Başlat" Command="{Binding StartCommand}" 
+            <UniformGrid Columns="2" ColumnSpacing="10" HorizontalAlignment="Center">
+                <Button Content="Bitir" Command="{Binding (vm:PomodoroViewModel).ResetCommand}" />
+                <Button Content="Başlat" Command="{Binding (vm:PomodoroViewModel).StartCommand}" 
                         Background="#0E7490"/>
             </UniformGrid>
         </StackPanel>

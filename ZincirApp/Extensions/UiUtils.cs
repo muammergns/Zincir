@@ -18,18 +18,7 @@ public static class UiUtils
         {
             return $"{t.Days}.{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
         }
-        
-        if (t.TotalHours >= 1)
-        {
-            return $"{t.Hours}:{t.Minutes:D2}:{t.Seconds:D2}";
-        }
-        
-        if (t.TotalMinutes >= 1)
-        {
-            return $"{t.Minutes:D2}:{t.Seconds:D2}";
-        }
-
-        return t.Seconds.ToString();
+        return t.TotalHours >= 1 ? $"{t.Hours}:{t.Minutes:D2}:{t.Seconds:D2}" : $"{t.Minutes:D2}:{t.Seconds:D2}";
     }
     
     public static void SetMaterialBackground(Control? control, string resourceKey)

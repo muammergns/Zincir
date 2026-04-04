@@ -1,10 +1,14 @@
 using System;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using ZincirApp.Extensions;
+using ZincirApp.Messages;
+using ZincirApp.Models;
 using ZincirApp.Services;
 
 namespace ZincirApp.ViewModels;
@@ -14,13 +18,8 @@ public partial class PomodoroViewModel : ViewModelBase
     
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StartCommand))]
-    [NotifyCanExecuteChangedFor(nameof(PauseCommand))]
     [NotifyCanExecuteChangedFor(nameof(ResetCommand))]
     private bool _isRunning;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(ResetCommand))]
-    private bool _hasProgress;
     
     [ObservableProperty]
     private double _progressValue;
@@ -32,6 +31,7 @@ public partial class PomodoroViewModel : ViewModelBase
     private TimeSpan _elapsedMinutes = TimeSpan.Zero;
 
     [ObservableProperty] private string _remainingTimeFormatted = "0";
+    [ObservableProperty] private string _pomodoroTitleText = "Pomodoro";
 
     private readonly ITimerService? _timerService;
     private readonly ISettingsService? _settingsService;
@@ -41,7 +41,7 @@ public partial class PomodoroViewModel : ViewModelBase
         _notificationService = serviceProvider.GetService<INotificationService>();
         _timerService = serviceProvider.GetService<ITimerService>();
         _settingsService = serviceProvider.GetService<ISettingsService>();
-        Dispatcher.UIThread.InvokeAsync(async () =>
+        Task.Run(async () =>
         {
             if (_notificationService != null)
             {
@@ -51,7 +51,7 @@ public partial class PomodoroViewModel : ViewModelBase
                     await _notificationService.RequestPermission();
                 }
             }
-        },  DispatcherPriority.Background);
+        });
         _timerService?.Tick += (_, span) =>
         {
             ElapsedMinutes = span;
@@ -63,17 +63,16 @@ public partial class PomodoroViewModel : ViewModelBase
             if (_settingsService != null)
             {
                 var appSettings = await _settingsService.GetSettings();
-                _timerService?.LoadState(appSettings.AccumulatedTime, appSettings.CurrentSessionStartTime);
+                _timerService?.LoadState(appSettings.AccumulatedTime, appSettings.CurrentSessionStartTime, appSettings.SessionTitleText);
                 IsRunning = _timerService?.IsRunning ?? false;
-                var span = _timerService?.ElapsedTime;
-                var elapsed = span ?? TimeSpan.Zero;
-                HasProgress = elapsed != TimeSpan.Zero;
-                ElapsedMinutes = elapsed;
+                var elapsed = _timerService?.ElapsedTime ?? TimeSpan.Zero;
+                ElapsedMinutes = TimeSpan.FromTicks(elapsed.Ticks);
                 RemainingTimeFormatted = UiUtils.FormatTimeSpan(elapsed);
                 ProgressValue = ElapsedMinutes.TotalSeconds * 6;
+                PomodoroTitleText = string.IsNullOrEmpty(_timerService?.Title) ? "Pomodoro" : _timerService.Title;
             }
         },  DispatcherPriority.Background);
-        
+        OpenPomodoroHistoryView("0");
     }
     
     [RelayCommand(CanExecute = nameof(CanStart))]
@@ -81,57 +80,52 @@ public partial class PomodoroViewModel : ViewModelBase
     {
         if (IsRunning) return;
         _timerService?.Start();
+        PomodoroTitleText = _timerService?.Title ?? "Pomodoro";
         IsRunning = true;
-        HasProgress = true;
         StatusColor = SolidColorBrush.Parse("#00FFFF");
-        Dispatcher.UIThread.InvokeAsync(async () =>
+        Task.Run(async () =>
         {
             if (_settingsService != null && _timerService != null)
             {
                 var appSettings = await _settingsService.GetSettings();
                 appSettings.AccumulatedTime = _timerService.AccumulatedTime;
                 appSettings.CurrentSessionStartTime = _timerService.CurrentSessionStartTime;
+                appSettings.SessionTitleText = _timerService.Title;
                 await _settingsService.SaveSettings(appSettings);
             }
-        }, DispatcherPriority.Background);
-    }
-
-    [RelayCommand(CanExecute = nameof(CanPause))]
-    private void Pause()
-    {
-        _timerService?.Pause();
-        IsRunning = false;
-        StatusColor = SolidColorBrush.Parse("#4A5568");
-        Dispatcher.UIThread.InvokeAsync(async () =>
-        {
-            if (_settingsService != null && _timerService != null)
-            {
-                var appSettings = await _settingsService.GetSettings();
-                appSettings.AccumulatedTime = _timerService.AccumulatedTime;
-                appSettings.CurrentSessionStartTime = _timerService.CurrentSessionStartTime;
-                await _settingsService.SaveSettings(appSettings);
-            }
-        }, DispatcherPriority.Background);
+        });
     }
 
     [RelayCommand(CanExecute = nameof(CanReset))]
     private void Reset()
     {
+        var pomodoroModel = new PomodoroModel
+        {
+            CreateDate = _timerService?.CurrentSessionStartTime ?? DateTime.Now,
+            SessionTimeSpan = ElapsedMinutes
+        };
         _timerService?.Reset();
         IsRunning = false;
-        HasProgress = false;
         StatusColor = SolidColorBrush.Parse("#4A5568");
         ElapsedMinutes = TimeSpan.Zero;
-        Dispatcher.UIThread.InvokeAsync(async () =>
+        PomodoroTitleText = "Pomodoro";
+        
+        Task.Run(async () =>
         {
             if (_settingsService != null && _timerService != null)
             {
                 var appSettings = await _settingsService.GetSettings();
                 appSettings.AccumulatedTime = _timerService.AccumulatedTime;
                 appSettings.CurrentSessionStartTime = _timerService.CurrentSessionStartTime;
+                appSettings.SessionTitleText = _timerService.Title;
                 await _settingsService.SaveSettings(appSettings);
             }
-        }, DispatcherPriority.Background);
+        });
+        Task.Run( async () =>
+        {
+            await DbService.InsertAsync(pomodoroModel);
+            WeakReferenceMessenger.Default.Send(new PomodoroListUpdated([pomodoroModel], DbState.Insert));
+        });
     }
 
     [RelayCommand]
@@ -141,26 +135,43 @@ public partial class PomodoroViewModel : ViewModelBase
         {
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                if (_notificationService != null && _timerService != null)
+                if (_notificationService != null && _timerService != null && _settingsService != null)
                 {
                     var result = await _notificationService.CheckPermission();
                     if (result)
                     {
+                        Start();
                         _notificationService.ScheduleNotification(
-                            _timerService.Title, 
+                            "Pomodoro", 
                             _timerService.Title, 
                             TimeSpan.FromMinutes(minute));
-                        Start();
+                        
                     }
                 }
-            },  DispatcherPriority.Background);
+            }, DispatcherPriority.Background);
         }
     }
     
     private bool CanStart() => !IsRunning;
-    private bool CanPause() => IsRunning;
-    private bool CanReset() => !IsRunning && HasProgress;
-    
+    private bool CanReset() => IsRunning;
 
+    [RelayCommand]
+    private void OpenPomodoroHistoryView(string isOpen)
+    {
+        NavService.NavigateToSub<PomodoroHistoryViewModel>();
+        if (int.TryParse(isOpen, out var index))
+        {
+            if (index==1)
+            {
+                WeakReferenceMessenger.Default.Send(new DrawerChangedMessage(true));
+            }
+        }
+        Task.Run(async () =>
+        {
+            var list = await DbService.GetAllAsync<PomodoroModel>();
+            WeakReferenceMessenger.Default.Send(new PomodoroListUpdated(list, DbState.Get));
+        });
+    }
+    
     
 }
