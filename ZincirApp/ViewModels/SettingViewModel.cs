@@ -1,11 +1,9 @@
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using ZincirApp.Extensions;
 using ZincirApp.Messages;
 using ZincirApp.Services;
@@ -15,14 +13,16 @@ namespace ZincirApp.ViewModels;
 public partial class SettingViewModel : ViewModelBase
 {
     private ObservableCollection<SelectionItem> Languages { get; } = [
-        new SelectionItem("English", "en-US"), 
-        new SelectionItem("Türkçe", "tr-TR")
+        new("English", "en-US"), 
+        new("Türkçe", "tr-TR")
     ];
     private readonly ISettingsService? _settingsService;
+    private readonly INavigationService? _navService;
     [ObservableProperty] private SelectionItem? _languageSelectedItem;
-    public SettingViewModel(IServiceProvider serviceProvider) :base(serviceProvider)
+    public SettingViewModel(ISettingsService settingsService,  INavigationService navService)
     {
-        _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
+        _settingsService = settingsService;
+        _navService = navService;
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             if (_settingsService == null) return;
@@ -33,7 +33,7 @@ public partial class SettingViewModel : ViewModelBase
                 break;
             }
         });
-        NavService.NavigateToSub<AppearanceSettingsViewModel>();
+        _navService.NavigateToSub<AppearanceSettingsViewModel>();
     }
     
     partial void OnLanguageSelectedItemChanged(SelectionItem? value)
@@ -51,7 +51,7 @@ public partial class SettingViewModel : ViewModelBase
     
     [RelayCommand] private void OpenAppearanceSettings()
     {
-        NavService.NavigateToSub<AppearanceSettingsViewModel>();
+        _navService?.NavigateToSub<AppearanceSettingsViewModel>();
         WeakReferenceMessenger.Default.Send(new DrawerChangedMessage(true));
     }
 }

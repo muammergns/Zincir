@@ -1,26 +1,31 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
-using ZincirApp.Locale;
+using ZincirApp.Assets;
 using ZincirApp.Messages;
 using ZincirApp.Services;
-using ZincirApp.Views;
 
 namespace ZincirApp.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    [ObservableProperty] private string _greeting = UiTexts.Greeting;
     [ObservableProperty] private bool _isRightPaneOpen;
     [ObservableProperty] private bool _isLeftPaneOpen;
+    [ObservableProperty] private INavigationService _navService;
 
-    public MainViewModel(IServiceProvider serviceProvider) : base(serviceProvider)
+    public MainViewModel(INavigationService navService, IDatabaseService dbService, IStorageService storageService)
     {
+        NavService = navService;
+        Task.Run(async () =>
+        {
+            dbService.SetPath(storageService.GetPath("zincir.db"));
+            dbService.SetSalt(Keys.DatabaseId);
+            dbService.SetPin("1234");
+            await dbService.EnsureInitializedAsync();
+        });
         ShowTodayView();
-        WeakReferenceMessenger.Default.Register<DrawerChangedMessage>(this, (r, m) =>
+        WeakReferenceMessenger.Default.Register<DrawerChangedMessage>(this, (_, m) =>
         {
             IsRightPaneOpen = m.IsOpen;
         });

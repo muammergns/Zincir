@@ -118,8 +118,24 @@ public enum DbState
     Get
 }
 
+public interface IDatabaseService
+{
+    Task EnsureInitializedAsync();
+    Task InsertAsync<T>(T entity) where T : class;
+    Task UpdateAsync<T>(T entity) where T : class;
+    Task DeleteAsync<T>(Guid uuid) where T : class;
+    Task<List<T>> GetAllAsync<T>() where T : class;
+    Task<List<HabitModel>> GetHabitsWithLogsAsync();
+    Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoUuid);
+    void SetPath(string path);
+    void SetSalt(string salt);
+    void SetPin(string? pin);
+    bool IsInitialized { get; }
 
-public class ZincirDbService
+}
+
+
+public class ZincirDbService : IDatabaseService
 {
     private string? _dbFilePath;
     private string? _salt;
@@ -145,10 +161,7 @@ public class ZincirDbService
     {
         lock (_initLock)
         {
-            if (_initTask == null)
-            {
-                _initTask = InitializeDatabaseInternalAsync();
-            }
+            _initTask ??= InitializeDatabaseInternalAsync();
             return _initTask;
         }
     }
@@ -209,7 +222,7 @@ public class ZincirDbService
         if (context != null) return await context.Set<T>().ToListAsync();
         return [];
     }
-    
+
     public async Task<List<HabitModel>> GetHabitsWithLogsAsync()
     {
         await EnsureInitializedAsync();

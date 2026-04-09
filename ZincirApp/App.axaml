@@ -64,6 +64,9 @@
          <DataTemplate DataType="{x:Type vm:PomodoroHistoryViewModel}">
              <views:PomodoroHistoryView />
          </DataTemplate>
+         <DataTemplate DataType="{x:Type vm:TodoEditViewModel}">
+             <views:TodoEditView />
+         </DataTemplate>
      </Application.DataTemplates>
              
     <Application.Resources>

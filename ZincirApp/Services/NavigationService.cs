@@ -10,26 +10,26 @@ public interface INavigationService
     ViewModelBase? CurrentView { get; }
     ViewModelBase? SubView { get; }
     void NavigateTo<T>() where T : ViewModelBase;
+    void NavigateTo<T>(T vm) where T : ViewModelBase;
     void NavigateToSub<T>() where T : ViewModelBase;
+    void NavigateToSub<T>(T vm) where T : ViewModelBase;
     bool DrawerState { get; set; }
 }
 
 public class NavigationService(IServiceProvider serviceProvider) : ObservableObject, INavigationService
 {
-    private ViewModelBase? _currentView;
-
     public ViewModelBase? CurrentView
     {
-        get => _currentView;
-        private set => SetProperty(ref _currentView, value);
+        get;
+        private set => SetProperty(ref field, value);
     }
-    private ViewModelBase? _subView;
 
     public ViewModelBase? SubView
     {
-        get => _subView;
-        private set => SetProperty(ref _subView, value);
+        get;
+        private set => SetProperty(ref field, value);
     }
+
     public void NavigateTo<T>() where T : ViewModelBase
     {
         try
@@ -42,12 +42,37 @@ public class NavigationService(IServiceProvider serviceProvider) : ObservableObj
             Console.WriteLine(e);
         }
     }
+
+    public void NavigateTo<T>(T vm) where T : ViewModelBase
+    {
+        try
+        {
+            CurrentView = vm;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
     public void NavigateToSub<T>() where T : ViewModelBase
     {
         try
         {
             var viewModel = serviceProvider.GetRequiredService<T>();
             SubView = viewModel;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    public void NavigateToSub<T>(T vm) where T : ViewModelBase
+    {
+        try
+        {
+            SubView = vm;
         }
         catch (Exception e)
         {

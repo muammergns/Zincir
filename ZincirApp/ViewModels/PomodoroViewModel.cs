@@ -5,11 +5,11 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using ZincirApp.Extensions;
 using ZincirApp.Messages;
 using ZincirApp.Models;
 using ZincirApp.Services;
+using ZincirApp.Stores;
 
 namespace ZincirApp.ViewModels;
 
@@ -36,11 +36,20 @@ public partial class PomodoroViewModel : ViewModelBase
     private readonly ITimerService? _timerService;
     private readonly ISettingsService? _settingsService;
     private readonly INotificationService? _notificationService;
-    public PomodoroViewModel(IServiceProvider serviceProvider) :base(serviceProvider)
+    private readonly INavigationService? _navigationService;
+    private readonly IPomodoroStore? _pomodoroStore;
+    public PomodoroViewModel(
+        INavigationService navigationService,
+        INotificationService notificationService, 
+        ISettingsService settingsService, 
+        IPomodoroStore pomodoroStore,
+        ITimerService timerService)
     {
-        _notificationService = serviceProvider.GetService<INotificationService>();
-        _timerService = serviceProvider.GetService<ITimerService>();
-        _settingsService = serviceProvider.GetService<ISettingsService>();
+        _notificationService = notificationService;
+        _timerService = timerService;
+        _settingsService = settingsService;
+        _navigationService = navigationService;
+        _pomodoroStore = pomodoroStore;
         Task.Run(async () =>
         {
             if (_notificationService != null)
@@ -120,11 +129,7 @@ public partial class PomodoroViewModel : ViewModelBase
                 appSettings.SessionTitleText = _timerService.Title;
                 await _settingsService.SaveSettings(appSettings);
             }
-        });
-        Task.Run( async () =>
-        {
-            await DbService.InsertAsync(pomodoroModel);
-            WeakReferenceMessenger.Default.Send(new PomodoroListUpdated([pomodoroModel], DbState.Insert));
+            await _pomodoroStore?.AddAsync(pomodoroModel)!;
         });
     }
 
@@ -158,19 +163,12 @@ public partial class PomodoroViewModel : ViewModelBase
     [RelayCommand]
     private void OpenPomodoroHistoryView(string isOpen)
     {
-        NavService.NavigateToSub<PomodoroHistoryViewModel>();
-        if (int.TryParse(isOpen, out var index))
+        _navigationService?.NavigateToSub<PomodoroHistoryViewModel>();
+        if (!int.TryParse(isOpen, out var index)) return;
+        if (index==1)
         {
-            if (index==1)
-            {
-                WeakReferenceMessenger.Default.Send(new DrawerChangedMessage(true));
-            }
+            WeakReferenceMessenger.Default.Send(new DrawerChangedMessage(true));
         }
-        Task.Run(async () =>
-        {
-            var list = await DbService.GetAllAsync<PomodoroModel>();
-            WeakReferenceMessenger.Default.Send(new PomodoroListUpdated(list, DbState.Get));
-        });
     }
     
     

@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:DataType="vm:PomodoroHistoryItemViewModel"
+             x:Class="ZincirApp.Views.PomodoroHistoryItemView">
+    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" RowSpacing="8" RowDefinitions="Auto,Auto" Margin="8">
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding (vm:PomodoroHistoryItemViewModel).TitleText}" 
+                   FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding (vm:PomodoroHistoryItemViewModel).CreateDateText}"  
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding (vm:PomodoroHistoryItemViewModel).SessionDurationText}" 
+                   Grid.RowSpan="2" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <Button Grid.Column="2" Grid.Row="0"  Grid.RowSpan="2" Classes="Flat" Content="{avalonia:MaterialIconTextExt Kind=Delete}"
+                Command="{Binding $parent[ItemsRepeater].((vm:PomodoroHistoryViewModel)DataContext).DeletePomodoroCommand, FallbackValue={x:Null}}"
+                CommandParameter="{Binding}"/>
+    </Grid>
+</UserControl>

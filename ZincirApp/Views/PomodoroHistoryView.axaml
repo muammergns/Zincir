@@ -5,23 +5,18 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:vm="clr-namespace:ZincirApp.ViewModels"
+             xmlns:view="clr-namespace:ZincirApp.Views"
+             x:DataType="vm:PomodoroHistoryViewModel"
              x:Class="ZincirApp.Views.PomodoroHistoryView">
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <ItemsRepeater ItemsSource="{Binding (vm:PomodoroHistoryViewModel).PomodoroHistory}">
+            <ItemsRepeater ItemsSource="{Binding (vm:PomodoroHistoryViewModel).Store.Items}">
                 <ItemsRepeater.Layout>
                     <StackLayout Orientation="Vertical"/>
                 </ItemsRepeater.Layout>
                 <ItemsRepeater.ItemTemplate>
-                    <DataTemplate DataType="vm:PomodoroHistoryModel">
-                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" RowSpacing="8" RowDefinitions="Auto,Auto" Margin="8">
-                            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding TitleText}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                            <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding CreateDateText}"  VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding SessionDurationText}" Grid.RowSpan="2" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            <Button Grid.Column="2" Grid.Row="0"  Grid.RowSpan="2" Classes="Flat" Content="{avalonia:MaterialIconTextExt Kind=Delete}"
-                                    Command="{Binding $parent[ItemsRepeater].((vm:PomodoroHistoryViewModel)DataContext).DeleteItemCommand, FallbackValue={x:Null}}"
-                                    CommandParameter="{Binding}"/>
-                        </Grid>
+                    <DataTemplate x:DataType="vm:PomodoroHistoryItemViewModel">
+                        <view:PomodoroHistoryItemView/>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>

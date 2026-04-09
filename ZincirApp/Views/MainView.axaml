@@ -5,8 +5,7 @@
              xmlns:vm="using:ZincirApp.ViewModels"
              xmlns:customControls="clr-namespace:ZincirApp.CustomControls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="ZincirApp.Views.MainView" Padding="4"
-             x:DataType="vm:MainViewModel">
+             x:Class="ZincirApp.Views.MainView" Padding="4">
 
     <SplitView 
         Name="LeftDrawer" 
@@ -58,7 +57,8 @@
                         <TextBlock Name="CenterDate" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8"/>
                     </DockPanel>
                 </Border>
-                <SplitView Name="RightDrawer" IsPaneOpen="{Binding IsRightPaneOpen, Mode=TwoWay}" OpenPaneLength="300" PanePlacement="Right" DisplayMode="Overlay">
+                <SplitView Name="RightDrawer" IsPaneOpen="{Binding IsRightPaneOpen, Mode=TwoWay}" 
+                           OpenPaneLength="300" PanePlacement="Right" DisplayMode="Overlay">
                     <SplitView.Pane>
                         <DockPanel GotFocus="RightDrawer_OnGotFocus">
                             <TransitioningContentControl 

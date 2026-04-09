@@ -5,9 +5,9 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using ZincirApp.Assets;
 using ZincirApp.Extensions;
 using ZincirApp.Services;
+using ZincirApp.Stores;
 using ZincirApp.ViewModels;
 using ZincirApp.Views;
 
@@ -31,7 +31,10 @@ public class App : Application
                 PlatformServices.StorageServiceFactory() :
                 new StorageService());
 
-        collection.AddSingleton<ZincirDbService>();
+        collection.AddSingleton<IDatabaseService, ZincirDbService>();
+        
+        collection.AddSingleton<IPomodoroStore, PomodoroStore>();
+        collection.AddSingleton<ITodoStore, TodoStore>();
 
         collection.AddSingleton<IDeviceIdService>(_ => 
             PlatformServices.DeviceIdServiceFactory != null ?

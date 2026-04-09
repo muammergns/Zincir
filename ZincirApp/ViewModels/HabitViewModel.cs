@@ -1,4 +1,5 @@
 using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 using ZincirApp.Services;
 
 namespace ZincirApp.ViewModels;
@@ -6,7 +7,7 @@ namespace ZincirApp.ViewModels;
 public class HabitViewModel : ViewModelBase
 {
 
-    public HabitViewModel(IServiceProvider serviceProvider) :base(serviceProvider)
+    public HabitViewModel()
     {
         Console.WriteLine(@"HabitViewModel ctor");
     }

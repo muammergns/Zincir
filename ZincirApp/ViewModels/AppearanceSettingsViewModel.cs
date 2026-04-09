@@ -1,10 +1,7 @@
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
 using ZincirApp.Extensions;
 using ZincirApp.Locale;
 using ZincirApp.Services;
@@ -38,17 +35,17 @@ public partial class AppearanceSettingsViewModel : ViewModelBase
         new SelectionItem("BlueGrey", "BlueGrey"), 
     ];
     private ObservableCollection<SelectionItem> ThemeTypes { get; } = [
-        new SelectionItem(UiTexts.Light, "Light"), 
-        new SelectionItem(UiTexts.Dark, "Dark"), 
+        new(UiTexts.Light, "Light"), 
+        new(UiTexts.Dark, "Dark"), 
     ];
     [ObservableProperty] private SelectionItem? _themeSelectedItem;
     [ObservableProperty] private SelectionItem? _primarySelectedItem;
     [ObservableProperty] private SelectionItem? _secondarySelectedItem;
     private readonly ISettingsService? _settingsService;
     
-    public AppearanceSettingsViewModel(IServiceProvider serviceProvider) : base(serviceProvider)
+    public AppearanceSettingsViewModel(ISettingsService settingsService)
     {
-        _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
+        _settingsService = settingsService;
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             if (_settingsService == null) return;

@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:mat="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="60"
+             x:Class="ZincirApp.Views.TodoItemView">
+    <Border Background="{Binding (vm:TodoItemViewModel).PriorityColor}" CornerRadius="10">
+        <Border Background="{DynamicResource MaterialCardBackgroundBrush}" Margin="4,0,0,0" CornerRadius="0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                
+                <CheckBox Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0" 
+                          Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ChangeCheckedTodoCommand, FallbackValue={x:Null}}"
+                          CommandParameter="{Binding}"
+                          IsChecked="{Binding (vm:TodoItemViewModel).IsCompleted}">
+                    <CheckBox.RenderTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    </CheckBox.RenderTransform>
+                </CheckBox>
+                <Button Grid.Column="1" Padding="16,4,4,1" Classes="flat" HorizontalContentAlignment="Left" Margin="4,0,4,0"
+                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ShowTodoDetailsCommand, FallbackValue={x:Null}}"
+                        CommandParameter="{Binding}">
+                    <Button.Content>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding (vm:TodoItemViewModel).Title}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                            <TextBlock Text="{Binding (vm:TodoItemViewModel).CreateDate}" TextWrapping="Wrap" FontSize="12" FontWeight="Light"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                
+                <Button Grid.Column="2" Classes="flat" Padding="8" Margin="0,0,8,0" 
+                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).DeleteTodoCommand, FallbackValue={x:Null}}"
+                        CommandParameter="{Binding}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button.Content>
+                        <mat:MaterialIcon Grid.Column="2" Kind="Pin"/>
+                    </Button.Content>
+                </Button>
+                
+            </Grid>
+        </Border>
+    </Border>
+</UserControl>
