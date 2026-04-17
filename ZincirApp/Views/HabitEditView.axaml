@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
+             xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="ZincirApp.Views.HabitEditView">
+    <Grid RowDefinitions="*,Auto" Margin="10">
+        <ScrollViewer Grid.Row="0"  >
+            <StackPanel Spacing="30">
+                <UniformGrid ColumnSpacing="8">
+                    <TextBox Watermark="Title" TextWrapping="Wrap"
+                             MaxLength="200"
+                             Text="{Binding (vm:HabitEditViewModel).Title}"/>
+                </UniformGrid>
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <NumericUpDown Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" NumberFormat="" Minimum="1" Maximum="9"
+                                   Value="{Binding (vm:HabitEditViewModel).PeriodValue}"
+                                   ButtonSpinnerLocation="Left" FormatString="0"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Period"/>
+                    <UniformGrid Grid.Column="1" Grid.Row="1" Columns="3" HorizontalAlignment="Left" ColumnSpacing="8">
+                        <RadioButton Content="Gün" IsChecked="{Binding (vm:HabitEditViewModel).DayChecked}"/>
+                        <RadioButton Content="Hafta" IsChecked="{Binding (vm:HabitEditViewModel).WeekChecked}"/>
+                        <RadioButton Content="Ay" IsChecked="{Binding (vm:HabitEditViewModel).MonthChecked}"/>
+                        
+                    </UniformGrid>
+                </Grid>
+                
+                <Grid ColumnDefinitions="Auto, Auto" ColumnSpacing="12" HorizontalAlignment="Left">
+                    <ToggleSwitch Margin="12,0,0,0" Grid.Column="0" 
+                                  IsChecked="{Binding (vm:HabitEditViewModel).IsAtMost}"/>
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center">
+                        <Run Text="Edinmek"/>
+                        <Run Text="/"/>
+                        <Run Text="Kurtulmak" />
+                    </TextBlock>
+                </Grid>
+                <Grid ColumnDefinitions="Auto, Auto, *" ColumnSpacing="8" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="8">
+                        <ToggleSwitch HorizontalAlignment="Center"
+                            IsChecked="{Binding (vm:HabitEditViewModel).IsValue}"/>
+                        <TextBlock HorizontalAlignment="Center">
+                            <Run Text="Onay"/>
+                            <Run Text="/"/>
+                            <Run Text="Değer" />
+                        </TextBlock>
+                    </StackPanel>
+                    
+                    <NumericUpDown Grid.Column="1" NumberFormat="" Minimum="1"
+                                   Value="{Binding (vm:HabitEditViewModel).TargetValue}"
+                                   IsEnabled="{Binding (vm:HabitEditViewModel).IsValue}"
+                                   ButtonSpinnerLocation="Left" FormatString="0"/>
+                    <TextBox Grid.Column="2" Watermark="Unit" TextWrapping="Wrap"
+                             MaxLength="10" IsEnabled="{Binding (vm:HabitEditViewModel).IsValue}"
+                             Text="{Binding (vm:HabitEditViewModel).PeriodUnit}"/>
+                </Grid>
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                    <DatePicker Grid.Column="0" SelectedDate="{Binding (vm:HabitEditViewModel).TargetEndDate}" 
+                                assists:TextFieldAssist.Label="Target Date"/>
+                    <Button Grid.Column="1" Classes="flat" Content="{avalonia:MaterialIconTextExt Kind=Clear}"
+                            Command="{Binding (vm:HabitEditViewModel).ClearDateCommand}"/>
+                </Grid>
+                
+            </StackPanel>
+        </ScrollViewer>
+        <Button Grid.Row="1" Content="Save" 
+                Command="{Binding (vm:HabitEditViewModel).SaveCommand}"/>
+    </Grid>
+</UserControl>

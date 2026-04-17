@@ -62,6 +62,7 @@ public partial class MainView : UserControl
             RightPaneToggleButton.Content = RightDrawer.IsPaneOpen ? ">" : "<";
         };
         LeftDrawer.PaneClosing += LeftPaneClosing;
+        RightDrawer.PaneClosing += RightPaneClosing;
         CenterDate.Text = LeftDate.Text = DateTime.Now.ToLongDateString();
     }
 
@@ -91,6 +92,17 @@ public partial class MainView : UserControl
         e.Cancel = true;
         LeftDrawer.IsPaneOpen = false;
         LeftPaneToggleButton.Content = LeftDrawer.IsPaneOpen ? "<" : ">";
+    }
+
+    private void RightPaneClosing(object? sender, CancelRoutedEventArgs e)
+    {
+        if (e.Source is not SplitView splitView) return;
+        if (!splitView.Equals(RightDrawer)) return;
+        if (_windowState is not PaneState.Small)
+        {
+            e.Cancel = true;
+        }
+        
     }
     
     private void LeftDebounceTimer_Tick(object? sender, EventArgs e)

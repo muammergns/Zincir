@@ -35,6 +35,7 @@ public class App : Application
         
         collection.AddSingleton<IPomodoroStore, PomodoroStore>();
         collection.AddSingleton<ITodoStore, TodoStore>();
+        collection.AddSingleton<IHabitStore, HabitStore>();
 
         collection.AddSingleton<IDeviceIdService>(_ => 
             PlatformServices.DeviceIdServiceFactory != null ?
@@ -95,11 +96,13 @@ public class App : Application
         collection.AddSingleton<MainViewModel>();
         collection.AddTransient<SettingViewModel>();
         collection.AddTransient<AppearanceSettingsViewModel>();
-        collection.AddSingleton<TodayViewModel>();
-        collection.AddSingleton<TodoViewModel>();
-        collection.AddSingleton<HabitViewModel>();
+        collection.AddTransient<TodayViewModel>();
+        collection.AddTransient<TodoViewModel>();
+        collection.AddTransient<HabitViewModel>();
         collection.AddTransient<PomodoroViewModel>();
         collection.AddTransient<PomodoroHistoryViewModel>();
+        collection.AddTransient<TodoEditViewModel>();
+        collection.AddTransient<HabitEditViewModel>();
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

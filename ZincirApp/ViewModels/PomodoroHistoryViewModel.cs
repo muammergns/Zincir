@@ -22,7 +22,7 @@ public partial class PomodoroHistoryViewModel : ViewModelBase
     {
         Task.Run(async () =>
         {
-            if (model is { Model: not null }) await Store.DeleteAsync(model.Model.Uuid);
+            if (model is { Model: not null }) await Store.DeleteAsync(model.Model.Id);
         });
     }
     

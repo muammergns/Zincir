@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="150"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
+             xmlns:views="clr-namespace:ZincirApp.Views"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="ZincirApp.Views.HabitItemView">
+    <Grid RowDefinitions="Auto,Auto,Auto" Margin="8,4" RowSpacing="8">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="{Binding (vm:HabitItemViewModel).Title}" FontSize="16" VerticalAlignment="Center"/>
+            <Button Grid.Column="1" Padding="4" Classes="flat">
+                <Button.Content>
+                    <avalonia:MaterialIconText Grid.Column="1" Kind="TickAll" IconSize="20"/>
+                </Button.Content>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="1">
+            <ProgressBar ShowProgressText="True" ProgressTextFormat="" CornerRadius="20"/>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding (vm:HabitItemViewModel).RemainPeriodText}" FontWeight="Light" FontSize="12"/>
+                <TextBlock Text="{Binding (vm:HabitItemViewModel).TargetDateText}" FontWeight="Light" FontSize="12"/>
+            </StackPanel>
+            <Button Grid.Column="1" Padding="8">
+                <Button.Content>
+                    <avalonia:MaterialIcon Grid.Column="1" Kind="AddThick" />
+                </Button.Content>
+            </Button>
+            <Button Grid.Column="2" Padding="8">
+                <Button.Content>
+                    <avalonia:MaterialIcon Grid.Column="1" Kind="Edit" />
+                </Button.Content>
+            </Button>
+            <Button Grid.Column="3" Padding="8">
+                <Button.Content>
+                    <avalonia:MaterialIcon Grid.Column="1" Kind="Menu" />
+                </Button.Content>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

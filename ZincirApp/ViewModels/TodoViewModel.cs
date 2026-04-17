@@ -1,7 +1,7 @@
-using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
-using ZincirApp.Models;
+using CommunityToolkit.Mvvm.Messaging;
+using ZincirApp.Messages;
 using ZincirApp.Services;
 using ZincirApp.Stores;
 
@@ -18,6 +18,7 @@ public partial class TodoViewModel : ViewModelBase
         Task.Run(async () =>
         {
             await Store.LoadAsync();
+            _navService.NavigateToSub<TodoEditViewModel>();
         });
     }
 
@@ -27,16 +28,30 @@ public partial class TodoViewModel : ViewModelBase
         Task.Run(async () =>
         {
             if (model is { Model: not null }) 
-                await Store.DeleteAsync(model.Model.Uuid);
+                await Store.DeleteAsync(model.Model.Id);
+        });
+    }
+
+    [RelayCommand]
+    private void ChangePinnedTodo(TodoItemViewModel? model)
+    {
+        Task.Run(async () =>
+        {
+            if (model is { Model: not null })
+            {
+                model.Model.IsPinned = !model.Model.IsPinned;
+                await Store.UpdateAsync(model.Model);
+            }
         });
     }
 
     [RelayCommand]
     private void ShowTodoDetails(TodoItemViewModel? model)
     {
-        _navService.NavigateToSub<TodoEditViewModel>(model is { Model: not null }
-            ? new TodoEditViewModel(Store, model.Model)
-            : new TodoEditViewModel(Store));
+        _navService.NavigateToSub(model is { Model: not null }
+            ? new TodoEditViewModel(Store, _navService, model.Model)
+            : new TodoEditViewModel(Store, _navService));
+        WeakReferenceMessenger.Default.Send(new DrawerChangedMessage(true));
     }
 
     [RelayCommand]

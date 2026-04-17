@@ -24,7 +24,7 @@
                              Height="280"/>
                 </Viewbox>
             </Border>
-            <Border Margin="30">
+            <Border Margin="30" >
                 <Viewbox>
                     <Arc Stroke="{DynamicResource MaterialSecondaryMidBrush}" 
                          StrokeThickness="12"

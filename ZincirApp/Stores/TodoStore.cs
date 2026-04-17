@@ -20,16 +20,17 @@ public interface ITodoStore
     ObservableCollectionExtended<TodoItemViewModel> Items { get; }
     
     Task LoadAsync();
-    TodoItemViewModel? GetById(Guid uuid);
+    Task LoadAsync(Guid parentTodoId);
+    TodoItemViewModel? GetById(Guid id);
     Task AddAsync(TodoModel model);
     Task UpdateAsync(TodoModel model);
-    Task DeleteAsync(Guid uuid);
+    Task DeleteAsync(Guid id);
 }
 
 public class TodoStore : ITodoStore, IDisposable
 {
     private readonly IDatabaseService _db;
-    private readonly SourceCache<TodoModel, Guid> _taskSource = new(t => t.Uuid);
+    private readonly SourceCache<TodoModel, Guid> _taskSource = new(t => t.Id);
     private readonly IObservableCache<TodoItemViewModel, Guid> _vmCache;
     private readonly CompositeDisposable _disposables = new();
     
@@ -58,7 +59,18 @@ public class TodoStore : ITodoStore, IDisposable
 
     public async Task LoadAsync()
     {
-        var data = await _db.GetAllAsync<TodoModel>();
+        var data = await _db.GetParentTodosAsync();
+        
+        _taskSource.Edit(inner =>
+        {
+            inner.Clear();
+            inner.AddOrUpdate(data);
+        });
+    }
+    
+    public async Task LoadAsync(Guid parentTodoId)
+    {
+        var data = await _db.GetSubTodosAsync(parentTodoId);
         
         _taskSource.Edit(inner =>
         {
@@ -67,7 +79,7 @@ public class TodoStore : ITodoStore, IDisposable
         });
     }
 
-    public TodoItemViewModel? GetById(Guid uuid) => _vmCache.Lookup(uuid).ValueOrDefault();
+    public TodoItemViewModel? GetById(Guid id) => _vmCache.Lookup(id).ValueOrDefault();
 
     public async Task AddAsync(TodoModel model)
     {
@@ -81,10 +93,10 @@ public class TodoStore : ITodoStore, IDisposable
         _taskSource.AddOrUpdate(model);
     }
 
-    public async Task DeleteAsync(Guid uuid)
+    public async Task DeleteAsync(Guid id)
     {
-        await _db.DeleteAsync<TodoModel>(uuid);
-        _taskSource.Remove(uuid);
+        await _db.DeleteAsync<TodoModel>(id);
+        _taskSource.Remove(id);
     }
 
     public void Dispose() => _disposables.Dispose();
@@ -94,9 +106,10 @@ public class TodoStore : ITodoStore, IDisposable
         public int Compare(TodoItemViewModel? x, TodoItemViewModel? y)
         {
             if (ReferenceEquals(x, y)) return 0;
-            if (x == null) return 1;
-            if (y == null) return -1;
-
+            if (x?.Model == null) return 1;
+            if (y?.Model == null) return -1;
+            if (x.Model.IsCompleted != y.Model.IsCompleted) return x.Model.IsCompleted.CompareTo(y.Model.IsCompleted);
+            
             var result = GetGroupScore(x).CompareTo(GetGroupScore(y));
             if (result != 0) return result;
 

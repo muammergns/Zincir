@@ -13,10 +13,10 @@ public interface IPomodoroStore
 {
     ObservableCollection<PomodoroHistoryItemViewModel> Items { get; }
     Task LoadAsync();
-    PomodoroHistoryItemViewModel? GetById(Guid uuid);
+    PomodoroHistoryItemViewModel? GetById(Guid id);
     Task AddAsync(PomodoroModel model);
     Task UpdateAsync(PomodoroModel model);
-    Task DeleteAsync(Guid uuid);
+    Task DeleteAsync(Guid id);
 }
 
 public class PomodoroStore(IDatabaseService db) : IPomodoroStore
@@ -33,20 +33,20 @@ public class PomodoroStore(IDatabaseService db) : IPomodoroStore
         foreach (var p in data)
         {
             var vm = new PomodoroHistoryItemViewModel(p);
-            _cache[p.Uuid] = vm;
+            _cache[p.Id] = vm;
             Items.Add(vm);
         }
     }
 
-    public PomodoroHistoryItemViewModel? GetById(Guid uuid)=> 
-        _cache.TryGetValue(uuid, out var vm) ? vm : null;
+    public PomodoroHistoryItemViewModel? GetById(Guid id)=> 
+        _cache.TryGetValue(id, out var vm) ? vm : null;
 
     public async Task AddAsync(PomodoroModel model)
     {
         await db.InsertAsync<PomodoroModel>(model);
         
         var vm = new PomodoroHistoryItemViewModel(model);
-        _cache[model.Uuid] = vm;
+        _cache[model.Id] = vm;
         Items.Add(vm);
     }
 
@@ -54,20 +54,20 @@ public class PomodoroStore(IDatabaseService db) : IPomodoroStore
     {
         await db.UpdateAsync(model);
         
-        if (_cache.TryGetValue(model.Uuid, out var vm))
+        if (_cache.TryGetValue(model.Id, out var vm))
         {
             vm.Update(model);
         }
     }
 
-    public async Task DeleteAsync(Guid uuid)
+    public async Task DeleteAsync(Guid id)
     {
-        await db.DeleteAsync<PomodoroModel>(uuid);
+        await db.DeleteAsync<PomodoroModel>(id);
         
-        if (_cache.TryGetValue(uuid, out var vm))
+        if (_cache.TryGetValue(id, out var vm))
         {
             Items.Remove(vm);
-            _cache.Remove(uuid);
+            _cache.Remove(id);
         }
     }
 

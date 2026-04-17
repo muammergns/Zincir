@@ -1,6 +1,7 @@
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Material.Icons;
 using ZincirApp.Models;
 
 namespace ZincirApp.ViewModels;
@@ -16,6 +17,7 @@ public partial class TodoItemViewModel(TodoModel? todoModel) : ObservableObject
     [ObservableProperty] private string _description = todoModel?.Description ?? string.Empty;
     [ObservableProperty] private string _createDate = 
         @$"{todoModel?.CreateDate.ToLongDateString() ?? string.Empty} {todoModel?.CreateDate.ToLongTimeString() ?? string.Empty}";
+    [ObservableProperty] private MaterialIconKind _pinKind = todoModel?.IsPinned ?? false ? MaterialIconKind.Pin : MaterialIconKind.PinOff;
 
     [ObservableProperty] private IBrush _priorityColor = (todoModel?.IsImportant, todoModel?.IsUrgent) switch
     {
@@ -24,8 +26,11 @@ public partial class TodoItemViewModel(TodoModel? todoModel) : ObservableObject
         (false, true) => Brush.Parse("#FFC107"),   // Acil ama Önemli Değil (Sarı/Turuncu)#FFC107
         _ => Brush.Parse("#9E9E9E")                // İkisi de Değil (Gri)#9E9E9E
     };
-    
-    
+
+    partial void OnIsPinnedChanged(bool value)
+    {
+        PinKind = value ? MaterialIconKind.Pin : MaterialIconKind.PinOff;
+    }
 
 
     public void Update(TodoModel? model)

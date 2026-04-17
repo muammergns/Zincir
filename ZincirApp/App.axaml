@@ -67,6 +67,9 @@
          <DataTemplate DataType="{x:Type vm:TodoEditViewModel}">
              <views:TodoEditView />
          </DataTemplate>
+         <DataTemplate DataType="{x:Type vm:HabitEditViewModel}">
+             <views:HabitEditView />
+         </DataTemplate>
      </Application.DataTemplates>
              
     <Application.Resources>

@@ -70,42 +70,42 @@ public class ZincirDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<HabitModel>(entity =>
         {
-            entity.HasKey(e => e.Uuid);
+            entity.HasKey(e => e.Id);
             
             entity.HasMany(e => e.HabitLogs)
                   .WithOne(e => e.Habit)
-                  .HasForeignKey(e => e.HabitUuid)
+                  .HasForeignKey(e => e.HabitId)
                   .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasMany(e => e.Pomodoros)
                   .WithOne(e => e.Habit)
-                  .HasForeignKey(e => e.HabitUuid)
+                  .HasForeignKey(e => e.HabitId)
                   .OnDelete(DeleteBehavior.SetNull);
         });
         
         modelBuilder.Entity<HabitLogModel>(entity =>
         {
-            entity.HasKey(e => e.Uuid);
+            entity.HasKey(e => e.Id);
         });
 
         modelBuilder.Entity<TodoModel>(entity =>
         {
-            entity.HasKey(e => e.Uuid);
+            entity.HasKey(e => e.Id);
 
             entity.HasOne(e => e.ParentTodo)
                   .WithMany(e => e.SubTodos)
-                  .HasForeignKey(e => e.ParentTodoUuid)
+                  .HasForeignKey(e => e.ParentTodoId)
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasMany(e => e.Pomodoros)
                   .WithOne(e => e.Todo)
-                  .HasForeignKey(e => e.TodoUuid)
+                  .HasForeignKey(e => e.TodoId)
                   .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<PomodoroModel>(entity =>
         {
-            entity.HasKey(e => e.Uuid);
+            entity.HasKey(e => e.Id);
         });
     }
 }
@@ -123,10 +123,11 @@ public interface IDatabaseService
     Task EnsureInitializedAsync();
     Task InsertAsync<T>(T entity) where T : class;
     Task UpdateAsync<T>(T entity) where T : class;
-    Task DeleteAsync<T>(Guid uuid) where T : class;
+    Task DeleteAsync<T>(Guid id) where T : class;
     Task<List<T>> GetAllAsync<T>() where T : class;
     Task<List<HabitModel>> GetHabitsWithLogsAsync();
-    Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoUuid);
+    Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoId);
+    Task<List<TodoModel>> GetParentTodosAsync();
     void SetPath(string path);
     void SetSalt(string salt);
     void SetPin(string? pin);
@@ -145,7 +146,9 @@ public class ZincirDbService : IDatabaseService
     private readonly Lock _initLock = new Lock();
 
     public bool IsInitialized => _initTask?.IsCompleted == true;
+
     
+
     public void SetPath(string path) => _dbFilePath = path;
     public void SetSalt(string salt) => _salt = salt;
     public void SetPin(string? pin) => _pin = pin;
@@ -200,13 +203,13 @@ public class ZincirDbService : IDatabaseService
         }
     }
 
-    public async Task DeleteAsync<T>(Guid uuid) where T : class
+    public async Task DeleteAsync<T>(Guid id) where T : class
     {
         await EnsureInitializedAsync();
         await using var context = GetDbContext();
         if (context != null)
         {
-            var entity = await context.Set<T>().FindAsync(uuid);
+            var entity = await context.Set<T>().FindAsync(id);
             if (entity != null)
             {
                 context.Set<T>().Remove(entity);
@@ -234,13 +237,24 @@ public class ZincirDbService : IDatabaseService
         return [];
     }
     
-    public async Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoUuid)
+    public async Task<List<TodoModel>> GetParentTodosAsync()
     {
         await EnsureInitializedAsync();
         await using var context = GetDbContext();
         if (context != null)
             return await context.Todos
-                .Where(t => t.ParentTodoUuid == parentTodoUuid)
+                .Where(t => t.ParentTodoId == null)
+                .ToListAsync();
+        return [];
+    }
+    
+    public async Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoId)
+    {
+        await EnsureInitializedAsync();
+        await using var context = GetDbContext();
+        if (context != null)
+            return await context.Todos
+                .Where(t => t.ParentTodoId == parentTodoId)
                 .ToListAsync();
         return [];
     }

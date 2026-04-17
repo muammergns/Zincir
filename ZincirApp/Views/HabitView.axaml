@@ -2,7 +2,33 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             xmlns:vm="clr-namespace:ZincirApp.ViewModels"
+             xmlns:views="clr-namespace:ZincirApp.Views"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="ZincirApp.Views.HabitView">
-    HabitListView
+    
+    <Grid x:Name="Root" RowDefinitions="Auto, *,Auto" Margin="4,4,0,4">
+        <TextBlock Grid.Row="0" HorizontalAlignment="Center">
+            <Run Text="Habit"/>
+        </TextBlock>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" Grid.RowSpan="2">
+            <ItemsRepeater ItemsSource="{Binding (vm:HabitViewModel).Store.Items}" Margin="0,0,0,58">
+                <ItemsRepeater.Layout>
+                    <StackLayout Orientation="Vertical" Spacing="4"/>
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="vm:HabitItemViewModel">
+                        <views:HabitItemView/>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ScrollViewer>
+        <Button Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                Margin="4,4,4,4" Width="50" Height="50" CornerRadius="25"
+                Command="{Binding (vm:HabitViewModel).ShowHabitDetailViewCommand}">
+            <avalonia:MaterialIcon Kind="Plus" Width="28" Height="28"/>
+        </Button>
+    </Grid>
+    
 </UserControl>

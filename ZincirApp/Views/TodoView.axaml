@@ -9,8 +9,11 @@
              x:DataType="vm:TodoViewModel"
              x:Class="ZincirApp.Views.TodoView">
     
-    <Grid x:Name="Root" RowDefinitions=" *,Auto" Margin="4,4,0,4">
-        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Visible" Grid.RowSpan="2">
+    <Grid x:Name="Root" RowDefinitions="Auto, *,Auto" Margin="4,4,0,4">
+        <TextBlock Grid.Row="0" HorizontalAlignment="Center">
+            <Run Text="Todo"/>
+        </TextBlock>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" Grid.RowSpan="2">
             <ItemsRepeater ItemsSource="{Binding (vm:TodoViewModel).Store.Items}">
                 <ItemsRepeater.Layout>
                     <StackLayout Orientation="Vertical" Spacing="4"/>
@@ -22,10 +25,9 @@
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
         </ScrollViewer>
-        <Button Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+        <Button Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Bottom"
                 Margin="4,4,4,4" Width="50" Height="50" CornerRadius="25"
-                Command="{Binding (vm:TodoViewModel).ShowTodoDetailsCommand}"
-                Background="{DynamicResource SystemAccentColor}">
+                Command="{Binding (vm:TodoViewModel).ShowTodoDetailsCommand}">
             <avalonia:MaterialIcon Kind="Plus" Width="28" Height="28"/>
         </Button>
     </Grid>

@@ -30,11 +30,11 @@
                 </Button>
                 
                 <Button Grid.Column="2" Classes="flat" Padding="8" Margin="0,0,8,0" 
-                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).DeleteTodoCommand, FallbackValue={x:Null}}"
+                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ChangePinnedTodoCommand, FallbackValue={x:Null}}"
                         CommandParameter="{Binding}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                     <Button.Content>
-                        <mat:MaterialIcon Grid.Column="2" Kind="Pin"/>
+                        <mat:MaterialIcon Grid.Column="2" Kind="{Binding (vm:TodoItemViewModel).PinKind}"/>
                     </Button.Content>
                 </Button>
                 
