@@ -19,8 +19,8 @@ public interface ITodoStore
 {
     ObservableCollectionExtended<TodoItemViewModel> Items { get; }
     
-    Task LoadAsync();
-    Task LoadAsync(Guid parentTodoId);
+    Task LoadAsync(bool isCompleted = false);
+    Task LoadAsync(Guid parentTodoId, bool isCompleted = false);
     TodoItemViewModel? GetById(Guid id);
     Task AddAsync(TodoModel model);
     Task UpdateAsync(TodoModel model);
@@ -57,9 +57,9 @@ public class TodoStore : ITodoStore, IDisposable
             .DisposeWith(_disposables);
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(bool isCompleted = false)
     {
-        var data = await _db.GetParentTodosAsync();
+        var data = await _db.GetParentTodosAsync(isCompleted);
         
         _taskSource.Edit(inner =>
         {
@@ -68,9 +68,9 @@ public class TodoStore : ITodoStore, IDisposable
         });
     }
     
-    public async Task LoadAsync(Guid parentTodoId)
+    public async Task LoadAsync(Guid parentTodoId, bool isCompleted = false)
     {
-        var data = await _db.GetSubTodosAsync(parentTodoId);
+        var data = await _db.GetSubTodosAsync(parentTodoId, isCompleted);
         
         _taskSource.Edit(inner =>
         {

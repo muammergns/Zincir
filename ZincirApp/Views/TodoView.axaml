@@ -5,15 +5,34 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:vm="clr-namespace:ZincirApp.ViewModels"
              xmlns:views="clr-namespace:ZincirApp.Views"
+             xmlns:locale="clr-namespace:ZincirApp.Locale"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="700"
              x:DataType="vm:TodoViewModel"
              x:Class="ZincirApp.Views.TodoView">
     
     <Grid x:Name="Root" RowDefinitions="Auto, *,Auto" Margin="4,4,0,4">
-        <TextBlock Grid.Row="0" HorizontalAlignment="Center">
-            <Run Text="Todo"/>
-        </TextBlock>
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" Grid.RowSpan="2">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto">
+            <Button Grid.Column="0" Classes="flat" Padding="8" Margin="0,0,8,0" 
+                    Command="{Binding (vm:TodoViewModel).ShowMainTodoListCommand}"
+                    VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button.Content>
+                    <avalonia:MaterialIcon Grid.Column="2" Kind="Home"/>
+                </Button.Content>
+            </Button>
+            <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
+                <Run Text="{Binding (vm:TodoViewModel).ParentTodoTitle}"/>
+            </TextBlock>
+            <Button Grid.Column="2" Classes="flat" Padding="8" Margin="0,0,8,0" 
+                    Command="{Binding (vm:TodoViewModel).ShowParentTodoListCommand}"
+                    
+                    VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button.Content>
+                    <avalonia:MaterialIcon Grid.Column="2" Kind="PreviousTitle"/>
+                </Button.Content>
+            </Button>
+        </Grid>
+        
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible">
             <ItemsRepeater ItemsSource="{Binding (vm:TodoViewModel).Store.Items}">
                 <ItemsRepeater.Layout>
                     <StackLayout Orientation="Vertical" Spacing="4"/>
@@ -25,10 +44,31 @@
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
         </ScrollViewer>
-        <Button Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                Margin="4,4,4,4" Width="50" Height="50" CornerRadius="25"
-                Command="{Binding (vm:TodoViewModel).ShowTodoDetailsCommand}">
-            <avalonia:MaterialIcon Kind="Plus" Width="28" Height="28"/>
-        </Button>
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+            <Button Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                    Margin="4,4,4,4" Width="40" Height="40" CornerRadius="25"
+                    Command="{Binding (vm:TodoViewModel).ShowTodoDetailsCommand}">
+                <avalonia:MaterialIcon Kind="Plus" Width="28" Height="28"/>
+            </Button>
+            <TabStrip Grid.Column="1" SelectedIndex="{Binding (vm:TodoViewModel).TabSelectionIndex}">
+                <TabStripItem>
+                    <TabStripItem.Content>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" HorizontalAlignment="Center">
+                            <avalonia:MaterialIcon Kind="CircleOutline" />
+                            <TextBlock Text="Aktif"/>
+                        </StackPanel>
+                    </TabStripItem.Content>
+                </TabStripItem>
+                <TabStripItem>
+                    <TabStripItem.Content>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" HorizontalAlignment="Center">
+                            <avalonia:MaterialIcon Kind="SuccessCircleOutline" />
+                            <TextBlock Text="Tamamlananlar"/>
+                        </StackPanel>
+                    </TabStripItem.Content>
+                </TabStripItem>
+            </TabStrip>
+        </Grid>
+        
     </Grid>
 </UserControl>

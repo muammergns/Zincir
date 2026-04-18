@@ -10,6 +10,9 @@
     <Grid RowDefinitions="*,Auto" Margin="10">
         <ScrollViewer Grid.Row="0"  >
             <StackPanel Spacing="8">
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap">
+                    <Run Text="{Binding (vm:TodoEditViewModel).ParentModelTitle}"/>
+                </TextBlock>
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
                     <CheckBox Grid.Column="0" Margin="10,0"
                               IsChecked="{Binding (vm:TodoEditViewModel).IsCompleted}"/>

@@ -126,8 +126,8 @@ public interface IDatabaseService
     Task DeleteAsync<T>(Guid id) where T : class;
     Task<List<T>> GetAllAsync<T>() where T : class;
     Task<List<HabitModel>> GetHabitsWithLogsAsync();
-    Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoId);
-    Task<List<TodoModel>> GetParentTodosAsync();
+    Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoId, bool isCompleted = false);
+    Task<List<TodoModel>> GetParentTodosAsync(bool isCompleted = false);
     void SetPath(string path);
     void SetSalt(string salt);
     void SetPin(string? pin);
@@ -237,24 +237,26 @@ public class ZincirDbService : IDatabaseService
         return [];
     }
     
-    public async Task<List<TodoModel>> GetParentTodosAsync()
+    public async Task<List<TodoModel>> GetParentTodosAsync(bool isCompleted = false)
     {
         await EnsureInitializedAsync();
         await using var context = GetDbContext();
         if (context != null)
             return await context.Todos
                 .Where(t => t.ParentTodoId == null)
+                .Where(t => t.IsCompleted == isCompleted)
                 .ToListAsync();
         return [];
     }
     
-    public async Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoId)
+    public async Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoId, bool isCompleted = false)
     {
         await EnsureInitializedAsync();
         await using var context = GetDbContext();
         if (context != null)
             return await context.Todos
                 .Where(t => t.ParentTodoId == parentTodoId)
+                .Where(t => t.IsCompleted == isCompleted)
                 .ToListAsync();
         return [];
     }

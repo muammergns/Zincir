@@ -98,7 +98,7 @@ public partial class MainView : UserControl
     {
         if (e.Source is not SplitView splitView) return;
         if (!splitView.Equals(RightDrawer)) return;
-        if (_windowState is not PaneState.Small)
+        if (_panelState is PaneState.Large)
         {
             e.Cancel = true;
         }

@@ -10,7 +10,7 @@ using ZincirApp.Stores;
 
 namespace ZincirApp.ViewModels;
 
-public partial class TodoEditViewModel(ITodoStore? todoStore, INavigationService navigationService, TodoModel? todoModel = null) : ViewModelBase
+public partial class TodoEditViewModel(ITodoStore? todoStore, INavigationService navigationService, TodoModel? todoModel = null, TodoModel? parentModel = null) : ViewModelBase
 {
     [ObservableProperty] private bool _isCompleted = todoModel?.IsCompleted ?? false;
     [ObservableProperty] private bool _isPinned = todoModel?.IsPinned ?? false;
@@ -20,6 +20,7 @@ public partial class TodoEditViewModel(ITodoStore? todoStore, INavigationService
     [ObservableProperty] private string _description = todoModel?.Description ?? string.Empty;
     [ObservableProperty] private DateTimeOffset? _targetDate = todoModel?.TargetDate;
     [ObservableProperty] private bool _isModelNotNull = todoModel is not null;
+    [ObservableProperty] private string? _parentModelTitle = parentModel?.Title ?? string.Empty;
     private TodoModel? _todoModel = todoModel;
 
     [RelayCommand]
@@ -54,13 +55,15 @@ public partial class TodoEditViewModel(ITodoStore? todoStore, INavigationService
         {
             _todoModel = new TodoModel
             {
-                CreateDate = DateTime.Now
+                CreateDate = DateTime.Now,
+                ParentTodoId = parentModel?.Id
             }; 
             isNew = true;
         }
         else
         {
             _todoModel.UpdateDate = DateTime.Now;
+            _todoModel.ParentTodoId = parentModel?.Id;
         }
         Task.Run(async () =>
         {

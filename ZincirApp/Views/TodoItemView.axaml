@@ -8,7 +8,7 @@
              x:Class="ZincirApp.Views.TodoItemView">
     <Border Background="{Binding (vm:TodoItemViewModel).PriorityColor}" CornerRadius="10">
         <Border Background="{DynamicResource MaterialCardBackgroundBrush}" Margin="4,0,0,0" CornerRadius="0">
-            <Grid ColumnDefinitions="Auto,*,Auto">
+            <Grid ColumnDefinitions="Auto,*,Auto, Auto">
                 
                 <CheckBox Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0" 
                           Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ChangeCheckedTodoCommand, FallbackValue={x:Null}}"
@@ -19,7 +19,7 @@
                     </CheckBox.RenderTransform>
                 </CheckBox>
                 <Button Grid.Column="1" Padding="16,4,4,1" Classes="flat" HorizontalContentAlignment="Left" Margin="4,0,4,0"
-                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ShowTodoDetailsCommand, FallbackValue={x:Null}}"
+                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ShowSubTodoListCommand, FallbackValue={x:Null}}"
                         CommandParameter="{Binding}">
                     <Button.Content>
                         <StackPanel Spacing="2">
@@ -30,6 +30,15 @@
                 </Button>
                 
                 <Button Grid.Column="2" Classes="flat" Padding="8" Margin="0,0,8,0" 
+                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ShowTodoDetailsCommand, FallbackValue={x:Null}}"
+                        CommandParameter="{Binding}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button.Content>
+                        <mat:MaterialIcon Grid.Column="2" Kind="Menu"/>
+                    </Button.Content>
+                </Button>
+                
+                <Button Grid.Column="3" Classes="flat" Padding="8" Margin="0,0,8,0" 
                         Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ChangePinnedTodoCommand, FallbackValue={x:Null}}"
                         CommandParameter="{Binding}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
