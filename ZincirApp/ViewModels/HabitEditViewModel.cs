@@ -45,6 +45,16 @@ public partial class HabitEditViewModel : ViewModelBase
         
     }
     
+    [RelayCommand]
+    private void Delete()
+    {
+        if (_habitModel == null || _habitStore == null) return;
+        Task.Run(async () =>
+        {
+            await _habitStore.DeleteAsync(_habitModel.Id);
+            _navigationService?.NavigateToSub<HabitEditViewModel>();
+        });
+    }
     
     [RelayCommand]
     private void ClearDate()
@@ -69,18 +79,19 @@ public partial class HabitEditViewModel : ViewModelBase
         {
             _habitModel.TargetEndDate = DateTime.Now;
         }
+
         Task.Run(async () =>
         {
             if (Title is null) return;
-            
+
             _habitModel.Title = Title;
             _habitModel.TargetEndDate = TargetEndDate?.Date;
             _habitModel.IsAtMost = IsAtMost ?? false;
-            _habitModel.TargetValue = TargetValue;
+            _habitModel.TargetValue = IsValue is true ? PeriodValue : null ;
             _habitModel.Period = 
-                DayChecked ?? true ? PeriodType.Daily : 
-                WeekChecked ?? false ? PeriodType.Weekly : 
-                MonthChecked ?? false ? PeriodType.Monthly : 
+                DayChecked is true ? PeriodType.Daily : 
+                WeekChecked is true ? PeriodType.Weekly : 
+                MonthChecked is true ? PeriodType.Monthly : 
                 PeriodType.Daily;
             _habitModel.PeriodValue = PeriodValue ?? 1;
             _habitModel.Unit = TargetUnit ?? string.Empty;

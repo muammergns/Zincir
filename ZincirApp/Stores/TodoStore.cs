@@ -108,13 +108,20 @@ public class TodoStore : ITodoStore, IDisposable
             if (ReferenceEquals(x, y)) return 0;
             if (x?.Model == null) return 1;
             if (y?.Model == null) return -1;
-            if (x.Model.IsCompleted != y.Model.IsCompleted) return x.Model.IsCompleted.CompareTo(y.Model.IsCompleted);
-            
-            var result = GetGroupScore(x).CompareTo(GetGroupScore(y));
-            if (result != 0) return result;
-
-            result = GetMatrixScore(x).CompareTo(GetMatrixScore(y));
-            return result != 0 ? result : string.Compare(y.CreateDate, x.CreateDate, StringComparison.Ordinal);
+            var c1 = x.Model.IsCompleted.CompareTo(y.Model.IsCompleted);
+            if (c1 != 0) return c1;
+            var c2 = y.IsPinned.CompareTo(x.IsPinned);
+            if (c2 != 0) return c2;
+            var c3 = GetMatrixScore(x).CompareTo(GetMatrixScore(y));
+            if (c3 != 0) return c3;
+            if (x.Model.TargetDate.HasValue && y.Model.TargetDate.HasValue)
+            {
+                var c4 = x.Model.TargetDate.Value.CompareTo(y.Model.TargetDate.Value);
+                if (c4 != 0) return c4;
+            }
+            var c5 = y.Model.CreateDate.CompareTo(x.Model.CreateDate);
+            if (c5 != 0) return c5;
+            return 0;
         }
 
         private int GetGroupScore(TodoItemViewModel item)

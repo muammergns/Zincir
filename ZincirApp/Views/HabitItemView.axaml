@@ -2,43 +2,133 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="150"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="130"
              xmlns:vm="clr-namespace:ZincirApp.ViewModels"
              xmlns:views="clr-namespace:ZincirApp.Views"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="ZincirApp.Views.HabitItemView">
-    <Grid RowDefinitions="Auto,Auto,Auto" Margin="8,4" RowSpacing="8">
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-            <TextBlock Grid.Column="0" Text="{Binding (vm:HabitItemViewModel).Title}" FontSize="16" VerticalAlignment="Center"/>
-            <Button Grid.Column="1" Padding="4" Classes="flat">
-                <Button.Content>
-                    <avalonia:MaterialIconText Grid.Column="1" Kind="TickAll" IconSize="20"/>
-                </Button.Content>
-            </Button>
+    <Border BorderThickness="4,1,1,0" CornerRadius="14"
+            BorderBrush="{Binding (vm:HabitItemViewModel).BaseColor}" >
+        <Grid RowDefinitions="Auto,Auto" Margin="8,4,8,8" RowSpacing="8" >
+            <!-- başlık bölümü -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4" >
+                <!-- onay bölümü -->
+                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+                    <Button Padding="4" Width="50" Height="50" CornerRadius="25" BorderThickness="2" 
+                            Foreground="{Binding (vm:HabitItemViewModel).CheckButtonForegroundColor}"
+                            BorderBrush="{Binding (vm:HabitItemViewModel).CheckButtonBorderColor}" 
+                            Background="{Binding (vm:HabitItemViewModel).CheckButtonBackgroundColor}">
+                        <Viewbox>
+                            <Grid>
+                                <avalonia:MaterialIcon Margin="4"
+                                        Kind="{Binding (vm:HabitItemViewModel).CheckButtonKind}" />
+                            </Grid>
+                        </Viewbox>
+                    </Button>
+                </Border>
+                <!-- alışkanlık başlığı -->
+                <Button Grid.Row="0" Grid.Column="1" Classes="flat" Padding="8,2" CornerRadius="100"
+                        VerticalContentAlignment="Center" HorizontalContentAlignment="Left"
+                        Command="{Binding $parent[ItemsRepeater].((vm:HabitViewModel)DataContext).ShowHabitEditViewCommand, FallbackValue={x:Null}}"
+                        CommandParameter="{Binding}" >
+                    <TextBlock FontSize="16" TextWrapping="Wrap" FontWeight="Medium"
+                               Text="{Binding (vm:HabitItemViewModel).Title}"/>
+                </Button>
+                <!-- alışkanlık periyot zaman detayları -->
+                <WrapPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" ItemSpacing="4" LineSpacing="4">
+                    <!-- alışkanlık son tarih -->
+                    <Border Background="{DynamicResource MaterialCardBackgroundBrush}" 
+                            CornerRadius="100" Padding="8,4" Opacity="0.7">
+                        <avalonia:MaterialIconText Kind="{Binding (vm:HabitItemViewModel).TaskLastDateKind}" 
+                                                   Text="{Binding (vm:HabitItemViewModel).TaskLastDateText}"
+                                                   FontWeight="Light" FontSize="10" IconSize="14"/>
+                    </Border>
+                    <!-- alışkanlık periyot uzunluğu -->
+                    <Border Background="{DynamicResource MaterialCardBackgroundBrush}" 
+                            CornerRadius="100" Padding="8,4" Opacity="0.7">
+                        <avalonia:MaterialIconText Kind="Repeat" FontWeight="Light" FontSize="10" IconSize="14"
+                                                   Text="{Binding (vm:HabitItemViewModel).PeriodLengthValueText}" />
+                    </Border>
+                    <!-- alışkanlık period kalan süre -->
+                    <Border Background="{DynamicResource MaterialCardBackgroundBrush}" 
+                            CornerRadius="100"  Padding="8,4" Opacity="0.7">
+                        <avalonia:MaterialIconText Kind="Timelapse" FontWeight="Light" FontSize="10" IconSize="14"
+                                                   Text="{Binding (vm:HabitItemViewModel).PeriodRemainTimeText}" />
+                    </Border>
+                    
+                </WrapPanel>
+                
+                <!-- alışkanlık periyot ilerleme detayları -->
+                <UniformGrid Rows="2" VerticalAlignment="Center" Grid.Row="0" Grid.Column="2">
+                    <Grid IsVisible="{Binding (vm:HabitItemViewModel).IsValueType}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <TextBlock FontSize="16"
+                                Foreground="{Binding (vm:HabitItemViewModel).CheckButtonForegroundColor}"
+                                Text="{Binding (vm:HabitItemViewModel).CurrentProgressValueText}"/>
+                            <TextBlock FontSize="12" Opacity="0.5" VerticalAlignment="Bottom">
+                                <Run Text=" /"/>
+                                <Run Text="{Binding (vm:HabitItemViewModel).TargetValueText}"/>
+                                <Run Text="{Binding (vm:HabitItemViewModel).UnitText}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <Button Classes="flat" Padding="4,4" HorizontalAlignment="Right">
+                        <avalonia:MaterialIconText Kind="TimelineClock" FontWeight="Light" FontSize="10" IconSize="12"
+                                Text="{Binding (vm:HabitItemViewModel).PomodoroSpendTimeText}" />
+                    </Button>
+                   
+                </UniformGrid>
+                
+            </Grid>
+            
+            <!-- item detayları kolonlar -->
+            <UniformGrid Grid.Row="1" Columns="3" ColumnSpacing="4" >
+                <UniformGrid.Styles>
+                    <Style Selector="TextBlock">
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="TextWrapping" Value="Wrap"/>
+                    </Style>
+                </UniformGrid.Styles>
+                <Button Classes="flat" CornerRadius="10" Padding="10,4">
+                    <StackPanel Spacing="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock>
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnLeftEmoji}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnLeftValue}"/>
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnLeftUnit}"/>
+                        </TextBlock>
+                        <TextBlock Text="{Binding (vm:HabitItemViewModel).ColumnLeftDescription}" 
+                                   Opacity="0.5" FontSize="10"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="flat" CornerRadius="10" Padding="10,4">
+                    <StackPanel Spacing="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock>
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnCenterEmoji}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnCenterValue}"/>
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnCenterUnit}"/>
+                        </TextBlock>
+                        <TextBlock Text="{Binding (vm:HabitItemViewModel).ColumnCenterDescription}" 
+                                   Opacity="0.5" FontSize="10"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="flat" CornerRadius="10" Padding="10,4">
+                    <StackPanel Spacing="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock >
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnRightEmoji}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnRightValue}"/>
+                            <Run Text="{Binding (vm:HabitItemViewModel).ColumnRightUnit}"/>
+                        </TextBlock>
+                        <TextBlock Text="{Binding (vm:HabitItemViewModel).ColumnRightDescription}" 
+                                   Opacity="0.5" FontSize="10"/>
+                    </StackPanel>
+                </Button>
+            </UniformGrid>
+            
         </Grid>
-        <Grid Grid.Row="1">
-            <ProgressBar ShowProgressText="True" ProgressTextFormat="" CornerRadius="20"/>
-        </Grid>
-        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
-            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="{Binding (vm:HabitItemViewModel).RemainPeriodText}" FontWeight="Light" FontSize="12"/>
-                <TextBlock Text="{Binding (vm:HabitItemViewModel).TargetDateText}" FontWeight="Light" FontSize="12"/>
-            </StackPanel>
-            <Button Grid.Column="1" Padding="8">
-                <Button.Content>
-                    <avalonia:MaterialIcon Grid.Column="1" Kind="AddThick" />
-                </Button.Content>
-            </Button>
-            <Button Grid.Column="2" Padding="8">
-                <Button.Content>
-                    <avalonia:MaterialIcon Grid.Column="1" Kind="Edit" />
-                </Button.Content>
-            </Button>
-            <Button Grid.Column="3" Padding="8">
-                <Button.Content>
-                    <avalonia:MaterialIcon Grid.Column="1" Kind="Menu" />
-                </Button.Content>
-            </Button>
-        </Grid>
-    </Grid>
+    </Border>
+    
 </UserControl>

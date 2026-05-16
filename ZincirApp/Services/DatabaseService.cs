@@ -233,10 +233,11 @@ public class ZincirDbService : IDatabaseService
         if (context != null)
             return await context.Habits
                 .Include(h => h.HabitLogs)
+                .Include(h => h.Pomodoros)
                 .ToListAsync();
         return [];
     }
-    
+
     public async Task<List<TodoModel>> GetParentTodosAsync(bool isCompleted = false)
     {
         await EnsureInitializedAsync();

@@ -34,6 +34,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand] private void ShowSettingView()
     {
         NavService.NavigateTo<SettingViewModel>();
+        NavService.NavigateToSub<AppearanceSettingsViewModel>();
         IsLeftPaneOpen = false;
     }
     [RelayCommand] private void ShowTodayView()
@@ -44,16 +45,19 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand] private void ShowTodoView()
     {
         NavService.NavigateTo<TodoViewModel>();
+        NavService.NavigateToSub<TodoEditViewModel>();
         IsLeftPaneOpen = false;
     }
     [RelayCommand] private void ShowHabitView()
     {
         NavService.NavigateTo<HabitViewModel>();
+        NavService.NavigateToSub<HabitEditViewModel>();
         IsLeftPaneOpen = false;
     }
     [RelayCommand] private void ShowPomodoroView()
     {
         NavService.NavigateTo<PomodoroViewModel>();
+        NavService.NavigateToSub<PomodoroHistoryViewModel>();
         IsLeftPaneOpen = false;
     }
 }

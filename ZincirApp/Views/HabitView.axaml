@@ -12,7 +12,7 @@
         <TextBlock Grid.Row="0" HorizontalAlignment="Center">
             <Run Text="Habit"/>
         </TextBlock>
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" Grid.RowSpan="2">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" Grid.RowSpan="2" Margin="0,4">
             <ItemsRepeater ItemsSource="{Binding (vm:HabitViewModel).Store.Items}" Margin="0,0,0,58">
                 <ItemsRepeater.Layout>
                     <StackLayout Orientation="Vertical" Spacing="4"/>
@@ -24,9 +24,9 @@
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
         </ScrollViewer>
-        <Button Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+        <Button Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Margin="4,4,4,4" Width="50" Height="50" CornerRadius="25"
-                Command="{Binding (vm:HabitViewModel).ShowHabitDetailViewCommand}">
+                Command="{Binding (vm:HabitViewModel).ShowHabitEditViewCommand}">
             <avalonia:MaterialIcon Kind="Plus" Width="28" Height="28"/>
         </Button>
     </Grid>

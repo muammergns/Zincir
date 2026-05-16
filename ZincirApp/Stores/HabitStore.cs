@@ -25,7 +25,6 @@ public interface IHabitStore
     Task AddHabitAsync(HabitModel model);
     Task UpdateAsync(HabitModel model);
     Task DeleteAsync(Guid id);
-
     Task AddLogAsync(HabitLogModel log);
     Task UpdateLogAsync(HabitLogModel log);
     Task DeleteLogAsync(Guid habitId, Guid logId);
@@ -50,7 +49,7 @@ public class HabitStore : IHabitStore, IDisposable
         _db = db;
         var uiContext = SynchronizationContext.Current;
         _vmCache = _habitSource.Connect()
-            .Transform(model => new HabitItemViewModel(model))
+            .Transform(model => new HabitItemViewModel(model, GetPeriodDates(model)))
             .AsObservableCache()
             .DisposeWith(_disposables);
 
@@ -76,11 +75,11 @@ public class HabitStore : IHabitStore, IDisposable
     
     public async Task LoadAsync()
     {
-        var logs = await _db.GetHabitsWithLogsAsync();
+        var models = await _db.GetHabitsWithLogsAsync();
         _habitSource.Edit(inner =>
         {
             inner.Clear();
-            inner.AddOrUpdate(logs);
+            inner.AddOrUpdate(models);
         });
     }
 
@@ -111,7 +110,7 @@ public class HabitStore : IHabitStore, IDisposable
         await _db.DeleteAsync<HabitModel>(id);
         _habitSource.Remove(id);
     }
-
+    
     public async Task AddLogAsync(HabitLogModel log)
     {
         await _db.InsertAsync(log);
@@ -163,9 +162,98 @@ public class HabitStore : IHabitStore, IDisposable
             if (ReferenceEquals(x, y)) return 0;
             if (x == null) return 1;
             if (y == null) return -1;
-
-            
+            var c1 = y.IsCurrentPeriodCompleted.CompareTo(x.IsCurrentPeriodCompleted);
+            if (c1 != 0) return c1;
+            var c2 = x.CurrentPeriodEndDate.CompareTo(y.CurrentPeriodEndDate);
+            if (c2 != 0) return c2;
+            var c3 = y.Model.CreateDate.CompareTo(x.Model.CreateDate);
+            if (c3 != 0) return c3;
             return 0;
         }
+    }
+
+    private static List<DateTime> GetPeriodDates(HabitModel model, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
+    {
+        var now = DateTime.Now;
+        var createDate = model.CreateDate;
+        var list = new List<DateTime>();
+        switch (model.Period)
+        {
+            case PeriodType.Daily:
+                var periodDateOfDay = createDate.Date;
+                list.Add(periodDateOfDay);
+                while (periodDateOfDay < now)
+                {
+                    periodDateOfDay = periodDateOfDay.AddDays((double)model.PeriodValue);
+                    list.Add(periodDateOfDay);
+                }
+                break;
+            case PeriodType.Weekly:
+                var periodDateOfWeek = createDate.Date.AddDays(-(createDate.DayOfWeek - firstDayOfWeek + 7) % 7);
+                if (periodDateOfWeek > createDate.Date) periodDateOfWeek = periodDateOfWeek.AddDays(-7);
+                list.Add(periodDateOfWeek);
+                while (periodDateOfWeek < now)
+                {
+                    periodDateOfWeek = periodDateOfWeek.AddDays((double)model.PeriodValue * 7);
+                    list.Add(periodDateOfWeek);
+                }
+                break;
+            case PeriodType.Monthly:
+                var periodDateOfMonth = new DateTime(createDate.Year, createDate.Month, 1);
+                if (periodDateOfMonth > createDate.Date) periodDateOfMonth = periodDateOfMonth.AddMonths(-1);
+                list.Add(periodDateOfMonth);
+                while (periodDateOfMonth < now)
+                {
+                    periodDateOfMonth = periodDateOfMonth.AddMonths((int)model.PeriodValue);
+                    list.Add(periodDateOfMonth);
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        return list;
+    }
+    
+    private static (DateTime,DateTime,int) GetCurrentPeriodDates(HabitModel model, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
+    {
+        var now = DateTime.Now.Date;
+        var createDate = model.CreateDate;
+        DateTime currentPeriodEndDate;
+        DateTime currentPeriodStartDate;
+        int currentPeriodIndex;
+        var periodValue = (int)model.PeriodValue;
+
+        switch (model.Period)
+        {
+            case PeriodType.Daily:
+                var daysPassed = (int)(now - createDate.Date).TotalDays;
+                currentPeriodIndex = daysPassed / periodValue;
+                currentPeriodEndDate = createDate.Date.AddDays((currentPeriodIndex + 1) * periodValue);
+                currentPeriodStartDate = currentPeriodEndDate.AddDays(-periodValue);
+                break;
+            case PeriodType.Weekly:
+                var firstDayOfFirstWeek = createDate.Date.AddDays(-(createDate.DayOfWeek - firstDayOfWeek + 7) % 7);
+                if (firstDayOfFirstWeek > createDate.Date) firstDayOfFirstWeek = firstDayOfFirstWeek.AddDays(-7);
+                var weeksPassed = (int)((now - firstDayOfFirstWeek).TotalDays / 7);
+                currentPeriodIndex = weeksPassed / periodValue;
+                currentPeriodEndDate = firstDayOfFirstWeek.AddDays((currentPeriodIndex + 1) * periodValue * 7);
+                currentPeriodStartDate = currentPeriodEndDate.AddDays(-(periodValue * 7));
+                break;
+            case PeriodType.Monthly:
+                var firstDayOfMonth = new DateTime(createDate.Year, createDate.Month, 1);
+                if (firstDayOfMonth > createDate.Date) firstDayOfMonth = firstDayOfMonth.AddMonths(-1);
+                var monthsPassed = (now.Year - firstDayOfMonth.Year) * 12 + now.Month - firstDayOfMonth.Month;
+                currentPeriodIndex = monthsPassed / periodValue;
+                currentPeriodEndDate = firstDayOfMonth.AddMonths((currentPeriodIndex + 1) * periodValue).AddDays(-1);
+                currentPeriodStartDate = currentPeriodEndDate.AddMonths(-periodValue);
+                break;
+            default:
+                var daysPassedDefault = (int)(now - createDate.Date).TotalDays;
+                currentPeriodIndex = daysPassedDefault / periodValue;
+                currentPeriodEndDate = createDate.Date.AddDays((currentPeriodIndex + 1) * periodValue);
+                currentPeriodStartDate = currentPeriodEndDate.AddDays(-periodValue);
+                break;
+        }
+        return (currentPeriodStartDate, currentPeriodEndDate, currentPeriodIndex);
     }
 }
