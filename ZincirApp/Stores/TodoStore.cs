@@ -19,8 +19,17 @@ public interface ITodoStore
 {
     ObservableCollectionExtended<TodoItemViewModel> Items { get; }
     
-    Task LoadAsync(bool isCompleted = false);
-    Task LoadAsync(Guid parentTodoId, bool isCompleted = false);
+    Task LoadAsync(
+        bool isPinned = true, 
+        bool isImportant = true,
+        bool isUrgent = true, 
+        bool isCompleted = false);
+    Task LoadAsync(
+        Guid parentTodoId, 
+        bool isPinned = true, 
+        bool isImportant = true,
+        bool isUrgent = true, 
+        bool isCompleted = false);
     TodoItemViewModel? GetById(Guid id);
     Task AddAsync(TodoModel model);
     Task UpdateAsync(TodoModel model);
@@ -57,9 +66,13 @@ public class TodoStore : ITodoStore, IDisposable
             .DisposeWith(_disposables);
     }
 
-    public async Task LoadAsync(bool isCompleted = false)
+    public async Task LoadAsync(
+        bool isPinned = true, 
+        bool isImportant = true,
+        bool isUrgent = true, 
+        bool isCompleted = false)
     {
-        var data = await _db.GetParentTodosAsync(isCompleted);
+        var data = await _db.GetParentTodosAsync(isPinned, isImportant, isUrgent, isCompleted);
         
         _taskSource.Edit(inner =>
         {
@@ -68,9 +81,14 @@ public class TodoStore : ITodoStore, IDisposable
         });
     }
     
-    public async Task LoadAsync(Guid parentTodoId, bool isCompleted = false)
+    public async Task LoadAsync(
+        Guid parentTodoId, 
+        bool isPinned = true, 
+        bool isImportant = true,
+        bool isUrgent = true, 
+        bool isCompleted = false)
     {
-        var data = await _db.GetSubTodosAsync(parentTodoId, isCompleted);
+        var data = await _db.GetSubTodosAsync(parentTodoId, isPinned, isImportant, isUrgent, isCompleted);
         
         _taskSource.Edit(inner =>
         {
@@ -114,22 +132,16 @@ public class TodoStore : ITodoStore, IDisposable
             if (c2 != 0) return c2;
             var c3 = GetMatrixScore(x).CompareTo(GetMatrixScore(y));
             if (c3 != 0) return c3;
+            var c4 = y.Model.TargetDate.HasValue.CompareTo(x.Model.TargetDate.HasValue);
+            if (c4 != 0) return c4;
             if (x.Model.TargetDate.HasValue && y.Model.TargetDate.HasValue)
             {
-                var c4 = x.Model.TargetDate.Value.CompareTo(y.Model.TargetDate.Value);
-                if (c4 != 0) return c4;
+                var c5 = x.Model.TargetDate.Value.CompareTo(y.Model.TargetDate.Value);
+                if (c5 != 0) return c5;
             }
-            var c5 = y.Model.CreateDate.CompareTo(x.Model.CreateDate);
-            if (c5 != 0) return c5;
+            var c6 = y.Model.CreateDate.CompareTo(x.Model.CreateDate);
+            if (c6 != 0) return c6;
             return 0;
-        }
-
-        private int GetGroupScore(TodoItemViewModel item)
-        {
-            if (item.IsPinned) return 0;
-            if (item.Model?.TargetDate == null) return 2;
-            
-            return item.Model.TargetDate.Value.Date <= DateTime.Today ? 1 : 2;
         }
 
         private int GetMatrixScore(TodoItemViewModel item)

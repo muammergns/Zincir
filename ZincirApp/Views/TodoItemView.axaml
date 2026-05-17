@@ -4,50 +4,77 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:mat="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:vm="clr-namespace:ZincirApp.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="60"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="90"
              x:Class="ZincirApp.Views.TodoItemView">
-    <Border Background="{Binding (vm:TodoItemViewModel).PriorityColor}" CornerRadius="10">
-        <Border Background="{DynamicResource MaterialCardBackgroundBrush}" Margin="4,0,0,0" CornerRadius="0">
-            <Grid ColumnDefinitions="Auto,*,Auto, Auto">
-                
-                <CheckBox Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0" 
-                          Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ChangeCheckedTodoCommand, FallbackValue={x:Null}}"
-                          CommandParameter="{Binding}"
-                          IsChecked="{Binding (vm:TodoItemViewModel).IsCompleted}">
-                    <CheckBox.RenderTransform>
-                        <ScaleTransform ScaleX="1" ScaleY="1"/>
-                    </CheckBox.RenderTransform>
-                </CheckBox>
-                <Button Grid.Column="1" Padding="16,4,4,1" Classes="flat" HorizontalContentAlignment="Left" Margin="4,0,4,0"
-                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ShowSubTodoListCommand, FallbackValue={x:Null}}"
-                        CommandParameter="{Binding}">
-                    <Button.Content>
-                        <StackPanel Spacing="2">
-                            <TextBlock Text="{Binding (vm:TodoItemViewModel).Title}" TextWrapping="Wrap" Margin="0,4,0,0"/>
-                            <TextBlock Text="{Binding (vm:TodoItemViewModel).CreateDate}" TextWrapping="Wrap" FontSize="12" FontWeight="Light"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-                
-                <Button Grid.Column="2" Classes="flat" Padding="8" Margin="0,0,8,0" 
-                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ShowTodoDetailsCommand, FallbackValue={x:Null}}"
-                        CommandParameter="{Binding}"
-                        VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Button.Content>
-                        <mat:MaterialIcon Grid.Column="2" Kind="Menu"/>
-                    </Button.Content>
-                </Button>
-                
-                <Button Grid.Column="3" Classes="flat" Padding="8" Margin="0,0,8,0" 
-                        Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ChangePinnedTodoCommand, FallbackValue={x:Null}}"
-                        CommandParameter="{Binding}"
-                        VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Button.Content>
-                        <mat:MaterialIcon Grid.Column="2" Kind="{Binding (vm:TodoItemViewModel).PinKind}"/>
-                    </Button.Content>
-                </Button>
-                
-            </Grid>
-        </Border>
+    <Border BorderBrush="{Binding (vm:TodoItemViewModel).PriorityColor}"
+            Background="{Binding (vm:TodoItemViewModel).PriorityBackground}"
+            BorderThickness="4,1,1,0" CornerRadius="12">
+        <Grid ColumnDefinitions="Auto,*,Auto, Auto" RowDefinitions="Auto,Auto" RowSpacing="4" Margin="4">
+            <CheckBox Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0,0,0" 
+                      Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ChangeCheckedTodoCommand, FallbackValue={x:Null}}"
+                      CommandParameter="{Binding}"
+                      IsChecked="{Binding (vm:TodoItemViewModel).IsCompleted}">
+                <CheckBox.RenderTransform>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </CheckBox.RenderTransform>
+            </CheckBox>
+            <Button Grid.Row="0" Grid.Column="1" Padding="8,4,4,1" Classes="flat" HorizontalContentAlignment="Left" Margin="4,0,4,0"
+                    Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ShowSubTodoListCommand, FallbackValue={x:Null}}"
+                    CommandParameter="{Binding}">
+                <Button.Content>
+                    <TextBlock Text="{Binding (vm:TodoItemViewModel).Title}" TextWrapping="Wrap"/>
+                </Button.Content>
+            </Button>
+            
+            <Button Grid.Row="0" Grid.Column="2" Classes="flat" Padding="8" Margin="0,0,8,0" 
+                    Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ShowTodoDetailsCommand, FallbackValue={x:Null}}"
+                    CommandParameter="{Binding}"
+                    VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button.Content>
+                    <mat:MaterialIcon Grid.Column="2" Kind="Menu"/>
+                </Button.Content>
+            </Button>
+            
+            <Button Grid.Row="0" Grid.Column="3" Classes="flat" Padding="8" Margin="0,0,8,0" 
+                    Command="{Binding $parent[ItemsRepeater].((vm:TodoViewModel)DataContext).ChangePinnedTodoCommand, FallbackValue={x:Null}}"
+                    CommandParameter="{Binding}"
+                    VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button.Content>
+                    <mat:MaterialIcon Grid.Column="2" Kind="{Binding (vm:TodoItemViewModel).PinKind}"/>
+                </Button.Content>
+            </Button>
+            <WrapPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" Margin="4,0"
+                       ItemSpacing="2" LineSpacing="2">
+                <Border Background="{DynamicResource MaterialCardBackgroundBrush}" 
+                        CornerRadius="100" Padding="8,0" Opacity="0.7">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <mat:MaterialIconText Grid.Column="0" Kind="PlusCircleOutline" IconSize="12"/>
+                        <TextBlock Grid.Column="1" FontSize="10" VerticalAlignment="Center" TextWrapping="Wrap"
+                                   Margin="0,1,0,0"
+                                   Text="{Binding (vm:TodoItemViewModel).CreateDate}"/>
+                    </Grid>
+                </Border>
+                <Border Background="{DynamicResource MaterialCardBackgroundBrush}" 
+                        IsVisible="{Binding (vm:TodoItemViewModel).IsUpdateVisible}"
+                        CornerRadius="100" Padding="8,0" Opacity="0.7">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <mat:MaterialIconText Grid.Column="0" Kind="Update" IconSize="12"/>
+                        <TextBlock Grid.Column="1" FontSize="10" VerticalAlignment="Center" TextWrapping="Wrap"
+                                   Margin="0,1,0,0"
+                                   Text="{Binding (vm:TodoItemViewModel).UpdateDate}"/>
+                    </Grid>
+                </Border>
+                <Border Background="{DynamicResource MaterialCardBackgroundBrush}" 
+                        IsVisible="{Binding (vm:TodoItemViewModel).IsTargetVisible}"
+                        CornerRadius="100" Padding="8,0" Opacity="1">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <mat:MaterialIconText Grid.Column="0" Kind="Target" IconSize="12"/>
+                        <TextBlock Grid.Column="1" FontSize="10" VerticalAlignment="Center" TextWrapping="Wrap"
+                                   Margin="0,1,0,0"
+                                   Text="{Binding (vm:TodoItemViewModel).TargetDate}"/>
+                    </Grid>
+                </Border>
+            </WrapPanel>
+        </Grid>
     </Border>
 </UserControl>

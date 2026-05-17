@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using ZincirApp.Locale;
 using ZincirApp.Messages;
 using ZincirApp.Models;
 using ZincirApp.Services;
@@ -20,27 +19,55 @@ public partial class TodoViewModel : ViewModelBase
     private readonly List<TodoModel?> _parentTodoModels = [];
     [ObservableProperty] private string? _parentTodoTitle;
     [ObservableProperty] private int _tabSelectionIndex;
+    [ObservableProperty] private bool _isPinnedList;
+    [ObservableProperty] private bool _isUrgentList;
+    [ObservableProperty] private bool _isImportantList;
+    [ObservableProperty] private bool _isCompletedList;
     public TodoViewModel(ITodoStore store, INavigationService navigationService)
     {
         Store = store;
         _navService = navigationService;
         Task.Run(async () =>
         {
-            await Store.LoadAsync();
+            await Store.LoadAsync(IsPinnedList, IsImportantList, IsUrgentList, IsCompletedList);
             _parentTodoModels.Clear();
             ParentTodoTitle = "Görevler";
             _navService.NavigateToSub<TodoEditViewModel>();
         });
     }
 
-    partial void OnTabSelectionIndexChanged(int value)
+    partial void OnIsPinnedListChanged(bool value)
+    {
+        Console.WriteLine($@"Pinned list: {value}");
+        RefreshList();
+    }
+
+    partial void OnIsUrgentListChanged(bool value)
+    {
+        Console.WriteLine($@"Urgent list: {value}");
+        RefreshList();
+    }
+
+    partial void OnIsImportantListChanged(bool value)
+    {
+        Console.WriteLine($@"Important list: {value}");
+        RefreshList();
+    }
+
+    partial void OnIsCompletedListChanged(bool value)
+    {
+        Console.WriteLine($@"Completed list: {value}");
+        RefreshList();
+    }
+
+    private void RefreshList()
     {
         var lastModel = _parentTodoModels.LastOrDefault();
         if (lastModel is null) 
         {
             Task.Run(async () =>
             {
-                await Store.LoadAsync(value == 1);
+                await Store.LoadAsync(IsPinnedList, IsImportantList, IsUrgentList, IsCompletedList);
                 _parentTodoModels.Clear();
                 ParentTodoTitle = "Görevler";
                 _navService.NavigateToSub<TodoEditViewModel>();
@@ -56,7 +83,7 @@ public partial class TodoViewModel : ViewModelBase
                 ParentTodoTitle += $@" / {parentTodoModel?.Title ?? "-"}";
             }
             Task.Run(async () => {
-                await Store.LoadAsync(lastModel.Id, value == 1);
+                await Store.LoadAsync(lastModel.Id, IsPinnedList, IsImportantList, IsUrgentList, IsCompletedList);
             });
         }
     }
@@ -79,6 +106,7 @@ public partial class TodoViewModel : ViewModelBase
             if (model is { Model: not null })
             {
                 model.Model.IsPinned = !model.Model.IsPinned;
+                model.Model.UpdateDate = DateTime.Now;
                 await Store.UpdateAsync(model.Model);
             }
         });
@@ -97,7 +125,7 @@ public partial class TodoViewModel : ViewModelBase
         _navService.NavigateToSub(
             new TodoEditViewModel(Store, _navService, null, model.Model));
         Task.Run(async () => {
-            await Store.LoadAsync(model.Model.Id);
+            await Store.LoadAsync(model.Model.Id, IsPinnedList, IsImportantList, IsUrgentList, IsCompletedList);
         });
     }
 
@@ -120,7 +148,7 @@ public partial class TodoViewModel : ViewModelBase
         {
             Task.Run(async () =>
             {
-                await Store.LoadAsync();
+                await Store.LoadAsync(IsPinnedList, IsImportantList, IsUrgentList, IsCompletedList);
                 _parentTodoModels.Clear();
                 ParentTodoTitle = "Görevler";
                 _navService.NavigateToSub<TodoEditViewModel>();
@@ -136,7 +164,7 @@ public partial class TodoViewModel : ViewModelBase
                 ParentTodoTitle += $@" / {parentTodoModel?.Title ?? "-"}";
             }
             Task.Run(async () => {
-                await Store.LoadAsync(lastModel.Id);
+                await Store.LoadAsync(lastModel.Id, IsPinnedList, IsImportantList, IsUrgentList, IsCompletedList);
             });
         }
     }
@@ -147,7 +175,7 @@ public partial class TodoViewModel : ViewModelBase
         if (_parentTodoModels.Count == 0) return;
         Task.Run(async () =>
         {
-            await Store.LoadAsync();
+            await Store.LoadAsync(IsPinnedList, IsImportantList, IsUrgentList, IsCompletedList);
             _parentTodoModels.Clear();
             ParentTodoTitle = "Görevler";
             _navService.NavigateToSub<TodoEditViewModel>();
@@ -162,6 +190,7 @@ public partial class TodoViewModel : ViewModelBase
             if (model is { Model: not null })
             {
                 model.Model.IsCompleted = model.IsCompleted;
+                model.Model.UpdateDate = DateTime.Now;
                 await Store.UpdateAsync(model.Model);
             }
         });

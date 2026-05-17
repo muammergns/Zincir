@@ -1,42 +1,70 @@
+using System;
 using Avalonia.Media;
-using Avalonia.Media.Immutable;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Material.Icons;
 using ZincirApp.Models;
 
 namespace ZincirApp.ViewModels;
 
-public partial class TodoItemViewModel(TodoModel? todoModel) : ObservableObject
+public partial class TodoItemViewModel : ObservableObject
 {
-    public TodoModel? Model { get; private set; } = todoModel;
-    [ObservableProperty] private string _title = todoModel?.Title ?? string.Empty;
-    [ObservableProperty] private bool _isCompleted = todoModel?.IsCompleted ?? false;
-    [ObservableProperty] private bool _isPinned = todoModel?.IsPinned ?? false;
-    [ObservableProperty] private bool _isUrgent = todoModel?.IsUrgent ?? false;
-    [ObservableProperty] private bool _isImportant = todoModel?.IsImportant ?? false;
-    [ObservableProperty] private string _description = todoModel?.Description ?? string.Empty;
-    [ObservableProperty] private string _createDate = 
-        @$"{todoModel?.CreateDate.ToLongDateString() ?? string.Empty} {todoModel?.CreateDate.ToLongTimeString() ?? string.Empty}";
-    [ObservableProperty] private MaterialIconKind _pinKind = todoModel?.IsPinned ?? false ? MaterialIconKind.Pin : MaterialIconKind.PinOff;
+    public TodoModel? Model { get; private set; }
+    [ObservableProperty] private string _title;
+    [ObservableProperty] private bool _isCompleted;
+    [ObservableProperty] private bool _isPinned;
+    [ObservableProperty] private bool _isUrgent;
+    [ObservableProperty] private bool _isImportant;
+    [ObservableProperty] private string _description;
+    [ObservableProperty] private string _createDate;
+    [ObservableProperty] private string _updateDate;
+    [ObservableProperty] private string _targetDate;
+    [ObservableProperty] private MaterialIconKind _pinKind;
+    [ObservableProperty] private IBrush _priorityColor;
+    [ObservableProperty] private IBrush _priorityBackground;
+    [ObservableProperty] private bool _isUpdateVisible;
+    [ObservableProperty] private bool _isTargetVisible;
 
-    [ObservableProperty] private IBrush _priorityColor = (todoModel?.IsImportant, todoModel?.IsUrgent) switch
+    public TodoItemViewModel(TodoModel? todoModel)
     {
-        (true, true) => Brush.Parse("#F44336"),    // Acil ve Önemli (Kırmızı) #F44336
-        (true, false) => Brush.Parse("#2196F3"),   // Önemli ama Acil Değil (Mavi)#2196F3
-        (false, true) => Brush.Parse("#FFC107"),   // Acil ama Önemli Değil (Sarı/Turuncu)#FFC107
-        _ => Brush.Parse("#9E9E9E")                // İkisi de Değil (Gri)#9E9E9E
-    };
+        Model = todoModel;
+        Title = todoModel?.Title ?? string.Empty;
+        IsCompleted = todoModel?.IsCompleted ?? false;
+        IsPinned = todoModel?.IsPinned ?? false;
+        IsUrgent = todoModel?.IsUrgent ?? false;
+        IsImportant = todoModel?.IsImportant ?? false;
+        Description = todoModel?.Description ?? string.Empty;
+        CreateDate = @$"{todoModel?.CreateDate.ToLongDateString() ?? string.Empty} {todoModel?.CreateDate.ToLongTimeString() ?? string.Empty}";
+        UpdateDate = @$"{todoModel?.UpdateDate?.ToLongDateString() ?? string.Empty} {todoModel?.UpdateDate?.ToLongTimeString() ?? string.Empty}";
+        TargetDate = @$"{todoModel?.TargetDate?.ToLongDateString() ?? string.Empty}";
+        PinKind = todoModel?.IsPinned ?? false ? MaterialIconKind.Pin : MaterialIconKind.PinOff;
+        PriorityColor = (todoModel?.IsImportant, todoModel?.IsUrgent) switch
+        {
+            (true, true) => GetBrush("F44336"),
+            (true, false) => GetBrush("2196F3"),
+            (false, true) => GetBrush("FFC107"),
+            _ => GetBrush("9E9E9E")
+        };
+        PriorityBackground = (todoModel?.IsImportant, todoModel?.IsUrgent) switch
+        {
+            (true, true) => GetBrush("F44336", 0.025),
+            (true, false) => GetBrush("2196F3", 0.025),
+            (false, true) => GetBrush("FFC107", 0.025),
+            _ => GetBrush("9E9E9E", 0.025)
+        };
+        IsUpdateVisible = todoModel?.UpdateDate is not null;
+        IsTargetVisible = todoModel?.TargetDate is not null;
+    }
 
     partial void OnIsPinnedChanged(bool value)
     {
         PinKind = value ? MaterialIconKind.Pin : MaterialIconKind.PinOff;
     }
-
-
-    public void Update(TodoModel? model)
+    
+    private static IBrush GetBrush(string color, double alpha = 1)
     {
-        Model = model;
-        
+        if (alpha is > 1 or < 0) alpha = 1;
+        var alphaString = Convert.ToInt32(alpha*255).ToString("X2");
+        return Brush.Parse($@"#{alphaString}{color}");
     }
     
 }

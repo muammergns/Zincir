@@ -126,8 +126,17 @@ public interface IDatabaseService
     Task DeleteAsync<T>(Guid id) where T : class;
     Task<List<T>> GetAllAsync<T>() where T : class;
     Task<List<HabitModel>> GetHabitsWithLogsAsync();
-    Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoId, bool isCompleted = false);
-    Task<List<TodoModel>> GetParentTodosAsync(bool isCompleted = false);
+    Task<List<TodoModel>> GetSubTodosAsync(
+        Guid parentTodoId, 
+        bool isPinned, 
+        bool isImportant,
+        bool isUrgent, 
+        bool isCompleted);
+    Task<List<TodoModel>> GetParentTodosAsync(
+        bool isPinned, 
+        bool isImportant,
+        bool isUrgent, 
+        bool isCompleted);
     void SetPath(string path);
     void SetSalt(string salt);
     void SetPin(string? pin);
@@ -238,26 +247,53 @@ public class ZincirDbService : IDatabaseService
         return [];
     }
 
-    public async Task<List<TodoModel>> GetParentTodosAsync(bool isCompleted = false)
+    public async Task<List<TodoModel>> GetParentTodosAsync(
+        bool isPinned = false, 
+        bool isImportant = false,
+        bool isUrgent = false, 
+        bool isCompleted = false)
     {
         await EnsureInitializedAsync();
         await using var context = GetDbContext();
         if (context != null)
             return await context.Todos
                 .Where(t => t.ParentTodoId == null)
-                .Where(t => t.IsCompleted == isCompleted)
+                .Where(t => isCompleted == t.IsCompleted)
+                .Where(t => !isPinned || t.IsPinned)
+                .Where(todo => 
+                        (!isImportant && !isUrgent) || // Koşul 1: Hiçbiri önemli veya acil değilse
+                        (isImportant && isUrgent && todo.IsImportant && todo.IsUrgent) || // Koşul 2: Her ikisi de önemli ve acil ise
+                        (isImportant && !isUrgent && todo.IsImportant) || // Koşul 3: Yalnızca önemli ise
+                        (!isImportant && isUrgent && todo.IsUrgent) // Koşul 4: Yalnızca acil ise
+                )
                 .ToListAsync();
         return [];
     }
+
+    private static bool GetTodoPriority(bool isImportant, bool isUrgent, bool tIsImportant, bool tIsUrgent)
+    {
+        if (!isImportant && !isUrgent) return true;
+        if (isImportant && isUrgent) return tIsImportant && tIsUrgent;
+        if (isImportant && tIsImportant) return true;
+        if (isUrgent && tIsUrgent) return true;
+        return false;
+    }
     
-    public async Task<List<TodoModel>> GetSubTodosAsync(Guid parentTodoId, bool isCompleted = false)
+    public async Task<List<TodoModel>> GetSubTodosAsync(
+        Guid parentTodoId, 
+        bool isPinned = false, 
+        bool isImportant = false,
+        bool isUrgent = false, 
+        bool isCompleted = false)
     {
         await EnsureInitializedAsync();
         await using var context = GetDbContext();
         if (context != null)
             return await context.Todos
                 .Where(t => t.ParentTodoId == parentTodoId)
-                .Where(t => t.IsCompleted == isCompleted)
+                .Where(t => isCompleted == t.IsCompleted)
+                .Where(t => !isPinned || t.IsPinned)
+                .Where(t => !isImportant && !isUrgent || (isImportant &&  t.IsImportant) || (isUrgent && t.IsUrgent))
                 .ToListAsync();
         return [];
     }

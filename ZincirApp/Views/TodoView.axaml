@@ -32,10 +32,10 @@
             </Button>
         </Grid>
         
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" Margin="0,8">
             <ItemsRepeater ItemsSource="{Binding (vm:TodoViewModel).Store.Items}">
                 <ItemsRepeater.Layout>
-                    <StackLayout Orientation="Vertical" Spacing="4"/>
+                    <StackLayout Orientation="Vertical" Spacing="8"/>
                 </ItemsRepeater.Layout>
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="vm:TodoItemViewModel">
@@ -45,30 +45,27 @@
             </ItemsRepeater>
         </ScrollViewer>
         <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="8">
-            <Button Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                    Margin="4,4,4,4" Width="40" Height="40" CornerRadius="25"
+            <Button Grid.Column="0" Margin="4,4,4,4" Width="40" Height="40" CornerRadius="25"
                     Command="{Binding (vm:TodoViewModel).ShowTodoDetailsCommand}">
                 <avalonia:MaterialIcon Kind="Plus" Width="28" Height="28"/>
             </Button>
-            <TabStrip Grid.Column="1" SelectedIndex="{Binding (vm:TodoViewModel).TabSelectionIndex}">
-                <TabStripItem>
-                    <TabStripItem.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" HorizontalAlignment="Center">
-                            <avalonia:MaterialIcon Kind="CircleOutline" />
-                            <TextBlock Text="Aktif"/>
-                        </StackPanel>
-                    </TabStripItem.Content>
-                </TabStripItem>
-                <TabStripItem>
-                    <TabStripItem.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" HorizontalAlignment="Center">
-                            <avalonia:MaterialIcon Kind="SuccessCircleOutline" />
-                            <TextBlock Text="Tamamlananlar"/>
-                        </StackPanel>
-                    </TabStripItem.Content>
-                </TabStripItem>
-            </TabStrip>
+            <WrapPanel Grid.Column="1" ItemSpacing="8" LineSpacing="8">
+            
+                <CheckBox IsChecked="{Binding (vm:TodoViewModel).IsPinnedList}">
+                    <avalonia:MaterialIconText Kind="Pin" Text="Pinned"/>
+                </CheckBox>
+                <CheckBox IsChecked="{Binding (vm:TodoViewModel).IsImportantList}">
+                    <avalonia:MaterialIconText Kind="Warning" Text="Important"/>
+                </CheckBox>
+                <CheckBox IsChecked="{Binding (vm:TodoViewModel).IsUrgentList}">
+                    <avalonia:MaterialIconText Kind="TimerMarker" Text="Urgent"/>
+                </CheckBox>
+                <CheckBox IsChecked="{Binding (vm:TodoViewModel).IsCompletedList}">
+                    <avalonia:MaterialIconText Kind="Tick" Text="Completed"/>
+                </CheckBox>
+            </WrapPanel>
         </Grid>
+        
         
     </Grid>
 </UserControl>
