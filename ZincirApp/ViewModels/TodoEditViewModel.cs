@@ -18,20 +18,23 @@ public partial class TodoEditViewModel(ITodoStore? todoStore, INavigationService
     [ObservableProperty] private bool _isUrgent = todoModel?.IsUrgent ?? false;
     [ObservableProperty] private string _title = todoModel?.Title ?? string.Empty;
     [ObservableProperty] private string _description = todoModel?.Description ?? string.Empty;
-    [ObservableProperty] private DateTimeOffset? _targetDate = todoModel?.TargetDate;
+    [ObservableProperty] private string _targetDateText =
+            todoModel?.TargetDate?.ToLongDateString() ?? "Tarih seçilmedi";
+    [ObservableProperty] private DateTime? _targetDate = todoModel?.TargetDate;
     [ObservableProperty] private bool _isModelNotNull = todoModel is not null;
     [ObservableProperty] private string? _parentModelTitle = parentModel?.Title ?? string.Empty;
     private TodoModel? _todoModel = todoModel;
 
+    partial void OnTargetDateChanged(DateTime? value)
+    {
+        TargetDateText = value?.ToLongDateString() ?? "Tarih seçilmedi";
+    }
+
     [RelayCommand]
     private void ClearDate()
     {
-        if (TargetDate is null)
-        {
-            Console.WriteLine(@"TargetDate is null");
-            return;
-        }
-        Console.WriteLine(TargetDate.Value.Date.ToLongDateString());
+        if (TargetDate is null) return;
+        Console.WriteLine(TargetDate?.ToLongDateString());
         TargetDate = null;
     }
 
@@ -73,7 +76,7 @@ public partial class TodoEditViewModel(ITodoStore? todoStore, INavigationService
             _todoModel.IsPinned = IsPinned;
             _todoModel.IsImportant = IsImportant;
             _todoModel.IsUrgent = IsUrgent;
-            _todoModel.TargetDate = TargetDate?.Date;
+            _todoModel.TargetDate = TargetDate;
 
             if (isNew)
             {

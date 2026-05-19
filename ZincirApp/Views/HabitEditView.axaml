@@ -56,12 +56,29 @@
                              MaxLength="10" IsEnabled="{Binding (vm:HabitEditViewModel).IsValue}"
                              Text="{Binding (vm:HabitEditViewModel).TargetUnit}"/>
                 </Grid>
-                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
-                    <DatePicker Grid.Column="0" SelectedDate="{Binding (vm:HabitEditViewModel).TargetEndDate}" 
-                                assists:TextFieldAssist.Label="Target Date"/>
-                    <Button Grid.Column="1" Classes="flat" Content="{avalonia:MaterialIconTextExt Kind=Clear}"
+                <WrapPanel ItemSpacing="4" LineSpacing="4" >
+                    <Button Classes="flat" Name="SelectDateButton">
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft" >
+                                <StackPanel>
+                                    <Button Name="CloseDateButton" HorizontalAlignment="Right"
+                                            Click="CloseDateButton_OnClick" Padding="8"
+                                            Content="{avalonia:MaterialIconExt Kind=Close}"/>
+                                    <Calendar 
+                                        SelectedDate="{Binding (vm:HabitEditViewModel).TargetEndDate}"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                        <Button.Content>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Target Date" FontSize="10" Opacity="0.7" />
+                                <TextBlock Text="{Binding (vm:HabitEditViewModel).TargetEndDateText}"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Classes="flat" Content="{avalonia:MaterialIconTextExt Kind=Clear}"
                             Command="{Binding (vm:HabitEditViewModel).ClearDateCommand}"/>
-                </Grid>
+                </WrapPanel>
                 
             </StackPanel>
         </ScrollViewer>

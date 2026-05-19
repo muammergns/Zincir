@@ -25,7 +25,8 @@ public partial class HabitEditViewModel : ViewModelBase
     [ObservableProperty] private bool? _isValue;
     [ObservableProperty] private decimal? _targetValue;
     [ObservableProperty] private string? _targetUnit;
-    [ObservableProperty] private DateTimeOffset? _targetEndDate;
+    [ObservableProperty] private DateTime? _targetEndDate;
+    [ObservableProperty] private string _targetEndDateText;
     
     public HabitEditViewModel(IHabitStore? habitStore, INavigationService navigationService, HabitModel? habitModel = null)
     {
@@ -42,10 +43,15 @@ public partial class HabitEditViewModel : ViewModelBase
         TargetValue = habitModel?.TargetValue ?? 0;
         TargetUnit = habitModel?.Unit ?? string.Empty;
         TargetEndDate = habitModel?.TargetEndDate;
-        
+        TargetEndDateText = TargetEndDate?.ToLongDateString() ?? "Tarih seçilmedi";
+
     }
-    
-    [RelayCommand]
+
+    partial void OnTargetEndDateChanged(DateTime? value)
+    {
+        TargetEndDateText = value?.ToLongDateString() ?? "Tarih seçilmedi";
+    }
+
     private void Delete()
     {
         if (_habitModel == null || _habitStore == null) return;

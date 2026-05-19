@@ -1,6 +1,5 @@
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.VisualTree;
+using Avalonia.Interactivity;
 
 namespace ZincirApp.Views;
 
@@ -9,9 +8,10 @@ public partial class TodoEditView : UserControl
     public TodoEditView()
     {
         InitializeComponent();
-        TodoEditDatePicker.SelectedDateChanged += (_, _) =>
-        {
-            TodoEditDatePicker.FindDescendantOfType<Popup>()?.Close();
-        };
+    }
+
+    private void CloseDateButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        SelectDateButton.Flyout?.Hide();
     }
 }

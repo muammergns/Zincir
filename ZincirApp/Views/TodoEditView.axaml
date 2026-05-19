@@ -26,13 +26,32 @@
                           IsChecked="{Binding (vm:TodoEditViewModel).IsImportant}"/>
                 <CheckBox Content="Pinned" Margin="10,0"
                           IsChecked="{Binding (vm:TodoEditViewModel).IsPinned}"/>
-                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
-                    <DatePicker Grid.Column="0" SelectedDate="{Binding (vm:TodoEditViewModel).TargetDate}" 
-                                assists:TextFieldAssist.Label="Target Date" Name="TodoEditDatePicker"/>
-                    <Button Grid.Column="1" Classes="flat" Content="{avalonia:MaterialIconTextExt Kind=Clear}"
+                <WrapPanel ItemSpacing="4" LineSpacing="4" >
+                    <Button Classes="flat" Name="SelectDateButton">
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft" >
+                                <StackPanel>
+                                    <Button Name="CloseDateButton" HorizontalAlignment="Right"
+                                            Click="CloseDateButton_OnClick" Padding="8"
+                                            Content="{avalonia:MaterialIconExt Kind=Close}"/>
+                                    <Calendar 
+                                        SelectedDate="{Binding (vm:TodoEditViewModel).TargetDate}"/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                        <Button.Content>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Target Date" FontSize="10" Opacity="0.7" />
+                                <TextBlock Text="{Binding (vm:TodoEditViewModel).TargetDateText}"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Classes="flat" HorizontalAlignment="Left"
+                            Content="{avalonia:MaterialIconTextExt Kind=Clear}"
                             Command="{Binding (vm:TodoEditViewModel).ClearDateCommand}"/>
-                </Grid>
-                <TextBox Watermark="Description" MinLines="10" AcceptsReturn="True" TextWrapping="Wrap" MaxLength="1000"
+                </WrapPanel>
+                <TextBox Watermark="Description" MinLines="10" AcceptsReturn="True" 
+                         TextWrapping="Wrap" MaxLength="1000"
                          Text="{Binding (vm:TodoEditViewModel).Description}"/>
             </StackPanel>
         </ScrollViewer>

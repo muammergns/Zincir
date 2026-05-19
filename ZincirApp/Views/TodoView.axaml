@@ -6,7 +6,7 @@
              xmlns:vm="clr-namespace:ZincirApp.ViewModels"
              xmlns:views="clr-namespace:ZincirApp.Views"
              xmlns:locale="clr-namespace:ZincirApp.Locale"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="700"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="700"
              x:DataType="vm:TodoViewModel"
              x:Class="ZincirApp.Views.TodoView">
     
@@ -49,7 +49,7 @@
                     Command="{Binding (vm:TodoViewModel).ShowTodoDetailsCommand}">
                 <avalonia:MaterialIcon Kind="Plus" Width="28" Height="28"/>
             </Button>
-            <WrapPanel Grid.Column="1" ItemSpacing="8" LineSpacing="8">
+            <WrapPanel Grid.Column="1" ItemSpacing="8" LineSpacing="8" VerticalAlignment="Center">
             
                 <CheckBox IsChecked="{Binding (vm:TodoViewModel).IsPinnedList}">
                     <avalonia:MaterialIconText Kind="Pin" Text="Pinned"/>
