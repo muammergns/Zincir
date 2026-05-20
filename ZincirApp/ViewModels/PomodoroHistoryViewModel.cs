@@ -11,10 +11,6 @@ public partial class PomodoroHistoryViewModel : ViewModelBase
     public PomodoroHistoryViewModel(IPomodoroStore pomodoroStore)
     {
         Store = pomodoroStore;
-        Task.Run(async () =>
-        {
-            await Store.LoadAsync();
-        });
     }
 
     [RelayCommand]

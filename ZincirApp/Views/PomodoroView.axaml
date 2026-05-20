@@ -9,7 +9,9 @@
     <Grid RowDefinitions="Auto, *, Auto" Margin="10">
         
         <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
-            <TextBlock Grid.Column="0" Text="{Binding (vm:PomodoroViewModel).PomodoroTitleText}" FontSize="14" FontWeight="Bold" />
+            <TextBox Grid.Column="0" FontSize="14" FontWeight="Bold" Watermark="Pomodoro"
+                     IsEnabled="{Binding (vm:PomodoroViewModel).IsTextBoxEnabled}"
+                     Text="{Binding (vm:PomodoroViewModel).PomodoroTitleText}"/>
             <Border Grid.Column="1" Width="10">
                 <Ellipse VerticalAlignment="Center" Fill="{Binding (vm:PomodoroViewModel).StatusColor}" Width="20" Height="20"/>
             </Border>

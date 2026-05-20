@@ -22,6 +22,11 @@ public partial class PomodoroViewModel : ViewModelBase
     private bool _isRunning;
     
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StartCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ResetCommand))]
+    private bool _isTextBoxEnabled;
+    
+    [ObservableProperty]
     private double _progressValue;
 
     [ObservableProperty]
@@ -31,18 +36,25 @@ public partial class PomodoroViewModel : ViewModelBase
     private TimeSpan _elapsedMinutes = TimeSpan.Zero;
 
     [ObservableProperty] private string _remainingTimeFormatted = "0";
-    [ObservableProperty] private string _pomodoroTitleText = "Pomodoro";
+    [ObservableProperty] private string? _pomodoroTitleText;
+    
+    private HabitModel? _habitModel;
+    private TodoModel? _todoModel;
 
     private readonly ITimerService? _timerService;
     private readonly ISettingsService? _settingsService;
     private readonly INotificationService? _notificationService;
     private readonly INavigationService? _navigationService;
     private readonly IPomodoroStore? _pomodoroStore;
+    private readonly IHabitStore? _habitStore;
+    private readonly ITodoStore? _todoStore;
     public PomodoroViewModel(
         INavigationService navigationService,
         INotificationService notificationService, 
         ISettingsService settingsService, 
         IPomodoroStore pomodoroStore,
+        IHabitStore habitStore,
+        ITodoStore todoStore,
         ITimerService timerService)
     {
         _notificationService = notificationService;
@@ -50,6 +62,8 @@ public partial class PomodoroViewModel : ViewModelBase
         _settingsService = settingsService;
         _navigationService = navigationService;
         _pomodoroStore = pomodoroStore;
+        _habitStore = habitStore;
+        _todoStore = todoStore;
         Task.Run(async () =>
         {
             if (_notificationService != null)
@@ -72,16 +86,26 @@ public partial class PomodoroViewModel : ViewModelBase
             if (_settingsService != null)
             {
                 var appSettings = await _settingsService.GetSettings();
-                _timerService?.LoadState(appSettings.AccumulatedTime, appSettings.CurrentSessionStartTime, appSettings.SessionTitleText);
+                _habitModel = appSettings.HabitSessionId is not null ? await habitStore.GetById((Guid)appSettings.HabitSessionId) : null;
+                _todoModel = appSettings.TodoSessionId is not null ? await todoStore.GetById((Guid)appSettings.TodoSessionId) : null;
+                var title = _habitModel?.Title ?? _todoModel?.Title ?? null;
+                _timerService?.LoadState(
+                    appSettings.AccumulatedTime, 
+                    appSettings.CurrentSessionStartTime, 
+                    title);
                 IsRunning = _timerService?.IsRunning ?? false;
+                IsTextBoxEnabled = !IsRunning;
                 var elapsed = _timerService?.ElapsedTime ?? TimeSpan.Zero;
                 ElapsedMinutes = TimeSpan.FromTicks(elapsed.Ticks);
                 RemainingTimeFormatted = UiUtils.FormatTimeSpan(elapsed);
                 ProgressValue = ElapsedMinutes.TotalSeconds * 6;
-                PomodoroTitleText = string.IsNullOrEmpty(_timerService?.Title) ? "Pomodoro" : _timerService.Title;
+                PomodoroTitleText = title;
+                if (_habitModel != null || _todoModel != null)
+                {
+                    Start();
+                }
             }
         },  DispatcherPriority.Background);
-        OpenPomodoroHistoryView("0");
     }
     
     [RelayCommand(CanExecute = nameof(CanStart))]
@@ -89,8 +113,10 @@ public partial class PomodoroViewModel : ViewModelBase
     {
         if (IsRunning) return;
         _timerService?.Start();
-        PomodoroTitleText = _timerService?.Title ?? "Pomodoro";
+        if (string.IsNullOrWhiteSpace(PomodoroTitleText)) PomodoroTitleText = "Pomodoro";
+        _timerService?.Title = PomodoroTitleText;
         IsRunning = true;
+        IsTextBoxEnabled = !IsRunning;
         StatusColor = SolidColorBrush.Parse("#00FFFF");
         Task.Run(async () =>
         {
@@ -99,7 +125,6 @@ public partial class PomodoroViewModel : ViewModelBase
                 var appSettings = await _settingsService.GetSettings();
                 appSettings.AccumulatedTime = _timerService.AccumulatedTime;
                 appSettings.CurrentSessionStartTime = _timerService.CurrentSessionStartTime;
-                appSettings.SessionTitleText = _timerService.Title;
                 await _settingsService.SaveSettings(appSettings);
             }
         });
@@ -111,25 +136,62 @@ public partial class PomodoroViewModel : ViewModelBase
         var pomodoroModel = new PomodoroModel
         {
             CreateDate = _timerService?.CurrentSessionStartTime ?? DateTime.Now,
-            SessionTimeSpan = ElapsedMinutes
+            Title = PomodoroTitleText,
+            SessionTimeSpan = ElapsedMinutes,
+            HabitId = _habitModel?.Id,
+            TodoId = _todoModel?.Id,
         };
         _timerService?.Reset();
         IsRunning = false;
+        IsTextBoxEnabled = !IsRunning;
         StatusColor = SolidColorBrush.Parse("#4A5568");
         ElapsedMinutes = TimeSpan.Zero;
-        PomodoroTitleText = "Pomodoro";
+        PomodoroTitleText = null;
+        
         
         Task.Run(async () =>
         {
+            var habitView = false;
+            var todoView = false;
+            if (_habitModel != null && _habitStore != null && _pomodoroStore != null)
+            {
+                await _habitStore.AddPomodoroAsync(pomodoroModel);
+                pomodoroModel.Habit = _habitModel;
+                _pomodoroStore.AddUpdateCache(pomodoroModel);
+                habitView = true;
+            }
+            else if (_todoModel != null && _todoStore != null && _pomodoroStore != null)
+            {
+                await _todoStore.AddPomodoroAsync(pomodoroModel);
+                pomodoroModel.Todo = _todoModel;
+                _pomodoroStore.AddUpdateCache(pomodoroModel);
+                todoView = true;
+            }
+            else if (_pomodoroStore != null)
+            {
+                await _pomodoroStore.AddAsync(pomodoroModel);
+            }
             if (_settingsService != null && _timerService != null)
             {
                 var appSettings = await _settingsService.GetSettings();
-                appSettings.AccumulatedTime = _timerService.AccumulatedTime;
-                appSettings.CurrentSessionStartTime = _timerService.CurrentSessionStartTime;
-                appSettings.SessionTitleText = _timerService.Title;
+                appSettings.AccumulatedTime = TimeSpan.Zero;
+                appSettings.CurrentSessionStartTime = null;
+                appSettings.HabitSessionId = null;
+                appSettings.TodoSessionId = null;
                 await _settingsService.SaveSettings(appSettings);
             }
-            await _pomodoroStore?.AddAsync(pomodoroModel)!;
+            
+            if (habitView)
+            {
+                _navigationService?.NavigateTo<HabitViewModel>();
+                _navigationService?.NavigateToSub<HabitEditViewModel>();
+            }
+            
+            if (todoView)
+            {
+                _navigationService?.NavigateTo<TodoViewModel>();
+                _navigationService?.NavigateToSub<TodoEditViewModel>();
+            }
         });
     }
 
@@ -148,7 +210,7 @@ public partial class PomodoroViewModel : ViewModelBase
                         Start();
                         _notificationService.ScheduleNotification(
                             "Pomodoro", 
-                            _timerService.Title, 
+                            _timerService.Title ?? "Pomodoro", 
                             TimeSpan.FromMinutes(minute));
                         
                     }

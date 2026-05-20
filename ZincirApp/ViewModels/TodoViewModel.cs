@@ -27,13 +27,8 @@ public partial class TodoViewModel : ViewModelBase
     {
         Store = store;
         _navService = navigationService;
-        Task.Run(async () =>
-        {
-            await Store.LoadAsync(IsPinnedList, IsImportantList, IsUrgentList, IsCompletedList);
-            _parentTodoModels.Clear();
-            ParentTodoTitle = "Görevler";
-            _navService.NavigateToSub<TodoEditViewModel>();
-        });
+        _parentTodoModels.Clear();
+        ParentTodoTitle = "Görevler";
     }
 
     partial void OnIsPinnedListChanged(bool value)

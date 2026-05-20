@@ -7,14 +7,14 @@ namespace ZincirApp.Services;
 public interface ITimerService
 {
     event EventHandler<TimeSpan>? Tick;
-    string Title { get; set; }
+    string? Title { get; set; }
     DateTime? CurrentSessionStartTime { get; set; }
     TimeSpan AccumulatedTime { get; set; }
     bool IsRunning { get; }
     TimeSpan ElapsedTime { get; }
     void Start();
     void Reset();
-    void LoadState(TimeSpan accumulatedTime, DateTime? currentSessionStartTime, string timerTitle);
+    void LoadState(TimeSpan accumulatedTime, DateTime? currentSessionStartTime, string? timerTitle);
 }
 
 
@@ -24,7 +24,7 @@ public class TimerService : ITimerService
     
     public event EventHandler<TimeSpan>? Tick;
     
-    public string Title { get; set; } = string.Empty; 
+    public string? Title { get; set; } = string.Empty; 
 
     public DateTime? CurrentSessionStartTime { get; set; }
     public TimeSpan AccumulatedTime { get; set; } = TimeSpan.Zero;
@@ -53,7 +53,7 @@ public class TimerService : ITimerService
         _timer.Tick += (_, _) => RaiseTick();
     }
 
-    public void LoadState(TimeSpan accumulatedTime, DateTime? currentSessionStartTime,  string timerTitle)
+    public void LoadState(TimeSpan accumulatedTime, DateTime? currentSessionStartTime,  string? timerTitle)
     {
         AccumulatedTime = accumulatedTime;
         CurrentSessionStartTime = currentSessionStartTime;

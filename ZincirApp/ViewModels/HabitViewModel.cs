@@ -13,15 +13,30 @@ public partial class HabitViewModel : ViewModelBase
 {
     public IHabitStore Store { get; }
     private readonly INavigationService _navService;
-    public HabitViewModel(IHabitStore store, INavigationService navigationService)
+    private readonly ISettingsService _settingsService;
+
+    public HabitViewModel(IHabitStore store, INavigationService navigationService, ISettingsService settingsService)
     {
         Store = store;
         _navService = navigationService;
-        Task.Run(async () =>
+        _settingsService = settingsService;
+    }
+
+    [RelayCommand]
+    private async Task ShowPomodoroView(HabitItemViewModel? model)
+    {
+        var appSettings = await _settingsService.GetSettings();
+        if (model is not null &&  
+            appSettings.HabitSessionId is null && 
+            appSettings.TodoSessionId is null && 
+            appSettings.CurrentSessionStartTime is null)
         {
-            await store.LoadAsync();
-            _navService.NavigateToSub<HabitEditViewModel>();
-        });
+            appSettings.HabitSessionId = model.Model.Id;
+            await _settingsService.SaveSettings(appSettings);
+            Console.WriteLine(@"Pomodoro init saved");
+        }
+        _navService.NavigateTo<PomodoroViewModel>();
+        _navService.NavigateToSub<PomodoroHistoryViewModel>();
     }
 
     [RelayCommand]

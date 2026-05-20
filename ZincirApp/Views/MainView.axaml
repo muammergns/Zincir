@@ -37,6 +37,7 @@
                             <customControls:IconButton 
                                 Kind="Timer" Content="Pomodoro" Name="PomodoroViewButton"
                                 Command="{Binding ShowPomodoroViewCommand}"/>
+                            <Calendar Name="DummyCalendar"/>
                         </StackPanel>
                     </ScrollViewer>
                     <customControls:IconButton 

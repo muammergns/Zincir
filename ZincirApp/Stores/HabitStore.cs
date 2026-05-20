@@ -21,13 +21,17 @@ public interface IHabitStore
 {
     ObservableCollectionExtended<HabitItemViewModel> Items { get; }
     Task LoadAsync();
-    HabitItemViewModel? GetById(Guid id);
+    Task ReLoadAsync();
+    Task<HabitModel?> GetById(Guid id);
     Task AddHabitAsync(HabitModel model);
     Task UpdateAsync(HabitModel model);
     Task DeleteAsync(Guid id);
     Task AddLogAsync(HabitLogModel log);
     Task UpdateLogAsync(HabitLogModel log);
     Task DeleteLogAsync(Guid habitId, Guid logId);
+    Task AddPomodoroAsync(PomodoroModel model);
+    Task UpdatePomodoroAsync(PomodoroModel model);
+    Task DeletePomodoroAsync(Guid habitId, Guid pomodoroId);
 }
 
 public class HabitStore : IHabitStore, IDisposable
@@ -40,6 +44,7 @@ public class HabitStore : IHabitStore, IDisposable
     {
         Interval = TimeSpan.FromSeconds(1)
     };
+    private bool _isInitialized;
     
     public ObservableCollectionExtended<HabitItemViewModel> Items { get; } = [];
 
@@ -54,15 +59,16 @@ public class HabitStore : IHabitStore, IDisposable
             .DisposeWith(_disposables);
 
         _vmCache.Connect()
-            .Sort(new HabitItemComparer())
+            .SortAndBind(Items, new HabitItemComparer())
             .ObserveOn(uiContext != null ? new SynchronizationContextScheduler(uiContext) : Scheduler.Default)
-            .Bind(Items)
             .DisposeMany()
             .Subscribe()
             .DisposeWith(_disposables);
 
         _timer.Tick += Tick;
         _timer.Start();
+        _isInitialized = false;
+        Task.Run(async () => await LoadAsync());
     }
 
     private void Tick(object? sender, EventArgs e)
@@ -75,6 +81,18 @@ public class HabitStore : IHabitStore, IDisposable
     
     public async Task LoadAsync()
     {
+        if (_isInitialized) return;
+        _isInitialized = true;
+        var models = await _db.GetHabitsWithLogsAsync();
+        _habitSource.Edit(inner =>
+        {
+            inner.Clear();
+            inner.AddOrUpdate(models);
+        });
+    }
+    
+    public async Task ReLoadAsync()
+    {
         var models = await _db.GetHabitsWithLogsAsync();
         _habitSource.Edit(inner =>
         {
@@ -83,7 +101,10 @@ public class HabitStore : IHabitStore, IDisposable
         });
     }
 
-    public HabitItemViewModel? GetById(Guid id) => _vmCache.Lookup(id).ValueOrDefault();
+    public async Task<HabitModel?> GetById(Guid id)
+    {
+        return await _db.GetHabitByIdAsync(id);
+    }
 
     public async Task AddHabitAsync(HabitModel model)
     {
@@ -128,6 +149,8 @@ public class HabitStore : IHabitStore, IDisposable
             habit.HabitLogs.Add(log);
         });
     }
+    
+    
 
     public async Task DeleteLogAsync(Guid habitId, Guid logId)
     {
@@ -136,6 +159,36 @@ public class HabitStore : IHabitStore, IDisposable
         {
             var existing = habit.HabitLogs.FirstOrDefault(l => l.Id == logId);
             if (existing != null) habit.HabitLogs.Remove(existing);
+        });
+    }
+
+    public async Task AddPomodoroAsync(PomodoroModel model)
+    {
+        if (model.HabitId is null) return;
+        await _db.InsertAsync(model);
+        UpdateCacheWithLog((Guid)model.HabitId, habit => habit.Pomodoros.Add(model));
+    }
+
+    public async Task UpdatePomodoroAsync(PomodoroModel model)
+    {
+        if (model.HabitId is null) return;
+        await _db.UpdateAsync(model);
+        UpdateCacheWithLog((Guid)model.HabitId, habit =>
+        {
+            var existing = habit.Pomodoros.FirstOrDefault(l => l.Id == model.Id);
+            if (existing == null) return;
+            habit.Pomodoros.Remove(existing);
+            habit.Pomodoros.Add(model);
+        });
+    }
+
+    public async Task DeletePomodoroAsync(Guid habitId, Guid pomodoroId)
+    {
+        await _db.DeleteAsync<PomodoroModel>(pomodoroId);
+        UpdateCacheWithLog(habitId, habit =>
+        {
+            var existing = habit.Pomodoros.FirstOrDefault(l => l.Id == pomodoroId);
+            if (existing != null) habit.Pomodoros.Remove(existing);
         });
     }
 
@@ -214,46 +267,4 @@ public class HabitStore : IHabitStore, IDisposable
         return list;
     }
     
-    private static (DateTime,DateTime,int) GetCurrentPeriodDates(HabitModel model, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
-    {
-        var now = DateTime.Now.Date;
-        var createDate = model.CreateDate;
-        DateTime currentPeriodEndDate;
-        DateTime currentPeriodStartDate;
-        int currentPeriodIndex;
-        var periodValue = (int)model.PeriodValue;
-
-        switch (model.Period)
-        {
-            case PeriodType.Daily:
-                var daysPassed = (int)(now - createDate.Date).TotalDays;
-                currentPeriodIndex = daysPassed / periodValue;
-                currentPeriodEndDate = createDate.Date.AddDays((currentPeriodIndex + 1) * periodValue);
-                currentPeriodStartDate = currentPeriodEndDate.AddDays(-periodValue);
-                break;
-            case PeriodType.Weekly:
-                var firstDayOfFirstWeek = createDate.Date.AddDays(-(createDate.DayOfWeek - firstDayOfWeek + 7) % 7);
-                if (firstDayOfFirstWeek > createDate.Date) firstDayOfFirstWeek = firstDayOfFirstWeek.AddDays(-7);
-                var weeksPassed = (int)((now - firstDayOfFirstWeek).TotalDays / 7);
-                currentPeriodIndex = weeksPassed / periodValue;
-                currentPeriodEndDate = firstDayOfFirstWeek.AddDays((currentPeriodIndex + 1) * periodValue * 7);
-                currentPeriodStartDate = currentPeriodEndDate.AddDays(-(periodValue * 7));
-                break;
-            case PeriodType.Monthly:
-                var firstDayOfMonth = new DateTime(createDate.Year, createDate.Month, 1);
-                if (firstDayOfMonth > createDate.Date) firstDayOfMonth = firstDayOfMonth.AddMonths(-1);
-                var monthsPassed = (now.Year - firstDayOfMonth.Year) * 12 + now.Month - firstDayOfMonth.Month;
-                currentPeriodIndex = monthsPassed / periodValue;
-                currentPeriodEndDate = firstDayOfMonth.AddMonths((currentPeriodIndex + 1) * periodValue).AddDays(-1);
-                currentPeriodStartDate = currentPeriodEndDate.AddMonths(-periodValue);
-                break;
-            default:
-                var daysPassedDefault = (int)(now - createDate.Date).TotalDays;
-                currentPeriodIndex = daysPassedDefault / periodValue;
-                currentPeriodEndDate = createDate.Date.AddDays((currentPeriodIndex + 1) * periodValue);
-                currentPeriodStartDate = currentPeriodEndDate.AddDays(-periodValue);
-                break;
-        }
-        return (currentPeriodStartDate, currentPeriodEndDate, currentPeriodIndex);
-    }
 }

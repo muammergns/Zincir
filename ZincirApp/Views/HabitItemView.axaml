@@ -73,7 +73,9 @@
                         </StackPanel>
                     </Grid>
                     
-                    <Button Classes="flat" Padding="4,4" HorizontalAlignment="Right">
+                    <Button Classes="flat" Padding="4,4" HorizontalAlignment="Right"
+                            Command="{Binding $parent[ItemsRepeater].((vm:HabitViewModel)DataContext).ShowPomodoroViewCommand, FallbackValue={x:Null}}"
+                            CommandParameter="{Binding}">
                         <avalonia:MaterialIconText Kind="TimelineClock" FontWeight="Light" FontSize="10" IconSize="12"
                                 Text="{Binding (vm:HabitItemViewModel).PomodoroSpendTimeText}" />
                     </Button>

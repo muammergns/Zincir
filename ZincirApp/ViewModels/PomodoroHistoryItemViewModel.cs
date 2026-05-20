@@ -7,17 +7,10 @@ namespace ZincirApp.ViewModels;
 public partial class PomodoroHistoryItemViewModel(PomodoroModel? pomodoroModel) : ObservableObject
 {
     public PomodoroModel? Model { get; private set; } = pomodoroModel;
-    [ObservableProperty] private string _titleText = 
-        pomodoroModel?.Habit?.Title ??
-        pomodoroModel?.Todo?.Title ??
-        pomodoroModel?.CreateDate.ToLongDateString() ?? 
-        @"Pomodoro";
-    
-    [ObservableProperty] private string _createDateText = 
-        pomodoroModel?.Habit is not null || pomodoroModel?.Todo is not null ? 
-        $"{pomodoroModel.CreateDate.ToLongDateString()} {pomodoroModel.CreateDate.ToLongTimeString()}" : 
-        pomodoroModel?.CreateDate.ToLongTimeString() ?? 
-        DateTime.Today.ToLongDateString();
+    [ObservableProperty] private string _titleText = pomodoroModel?.Title ?? @"Pomodoro";
+
+    [ObservableProperty] private string _createDateText = pomodoroModel is not null ?
+        $"{pomodoroModel.CreateDate.ToLongDateString()} {pomodoroModel.CreateDate.ToLongTimeString()}" : "Pomodoro";
     
     [ObservableProperty] private string _sessionDurationText =
         pomodoroModel?.SessionTimeSpan.ToString(@"hh\:mm\:ss") ??
@@ -25,17 +18,10 @@ public partial class PomodoroHistoryItemViewModel(PomodoroModel? pomodoroModel) 
 
     public void Update(PomodoroModel? pomodoroModel)
     {
-        TitleText = 
-            pomodoroModel?.Habit?.Title ??
-            pomodoroModel?.Todo?.Title ??
-            pomodoroModel?.CreateDate.ToLongDateString() ?? 
-            @"Pomodoro";
+        TitleText = pomodoroModel?.Title ?? @"Pomodoro";
         
-        CreateDateText = 
-            pomodoroModel?.Habit is not null || pomodoroModel?.Todo is not null ? 
-            $"{pomodoroModel.CreateDate.ToLongDateString()} {pomodoroModel.CreateDate.ToLongTimeString()}" : 
-            pomodoroModel?.CreateDate.ToLongTimeString() ?? 
-            DateTime.Today.ToLongDateString();
+        CreateDateText = pomodoroModel is not null ?
+            $"{pomodoroModel.CreateDate.ToLongDateString()} {pomodoroModel.CreateDate.ToLongTimeString()}" : "Pomodoro";
         
         SessionDurationText = 
             pomodoroModel?.SessionTimeSpan.ToString(@"hh\:mm\:ss") ??

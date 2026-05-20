@@ -11,6 +11,7 @@ using ZincirApp.Models;
 namespace ZincirApp.Services;
 //cd ZincirApp/
 //dotnet ef migrations add Version_Init --context ZincirDbContext
+//dotnet ef migrations add Version_1_Pomodoro --context ZincirDbContext
 
 public class ZincirDbContextFactory : IDesignTimeDbContextFactory<ZincirDbContext>
 {
@@ -110,14 +111,6 @@ public class ZincirDbContext : DbContext
     }
 }
 
-public enum DbState
-{
-    Insert,
-    Update,
-    Delete,
-    Get
-}
-
 public interface IDatabaseService
 {
     Task EnsureInitializedAsync();
@@ -125,6 +118,8 @@ public interface IDatabaseService
     Task UpdateAsync<T>(T entity) where T : class;
     Task DeleteAsync<T>(Guid id) where T : class;
     Task<List<T>> GetAllAsync<T>() where T : class;
+    Task<HabitModel?> GetHabitByIdAsync(Guid id);
+    Task<TodoModel?> GetTodoByIdAsync(Guid id);
     Task<List<HabitModel>> GetHabitsWithLogsAsync();
     Task<List<TodoModel>> GetSubTodosAsync(
         Guid parentTodoId, 
@@ -141,6 +136,7 @@ public interface IDatabaseService
     void SetSalt(string salt);
     void SetPin(string? pin);
     bool IsInitialized { get; }
+    Task<List<PomodoroModel>> GetPomodorosAsync();
 
 }
 
@@ -155,8 +151,6 @@ public class ZincirDbService : IDatabaseService
     private readonly Lock _initLock = new Lock();
 
     public bool IsInitialized => _initTask?.IsCompleted == true;
-
-    
 
     public void SetPath(string path) => _dbFilePath = path;
     public void SetSalt(string salt) => _salt = salt;
@@ -235,6 +229,26 @@ public class ZincirDbService : IDatabaseService
         return [];
     }
 
+    public async Task<HabitModel?> GetHabitByIdAsync(Guid id)
+    {
+        await EnsureInitializedAsync();
+        await using var context = GetDbContext();
+        if (context != null) 
+            return await context.Habits
+                .Where(h => h.Id == id).FirstOrDefaultAsync();
+        return null;
+    }
+
+    public async Task<TodoModel?> GetTodoByIdAsync(Guid id)
+    {
+        await EnsureInitializedAsync();
+        await using var context = GetDbContext();
+        if (context != null) 
+            return await context.Todos
+                .Where(h => h.Id == id).FirstOrDefaultAsync();
+        return null;
+    }
+
     public async Task<List<HabitModel>> GetHabitsWithLogsAsync()
     {
         await EnsureInitializedAsync();
@@ -243,6 +257,19 @@ public class ZincirDbService : IDatabaseService
             return await context.Habits
                 .Include(h => h.HabitLogs)
                 .Include(h => h.Pomodoros)
+                .ToListAsync();
+        return [];
+    }
+    
+    public async Task<List<PomodoroModel>> GetPomodorosAsync()
+    {
+        await EnsureInitializedAsync();
+        await using var context = GetDbContext();
+        if (context != null)
+            return await context.Pomodoros
+                .Include(h => h.Habit)
+                .Include(h => h.Todo)
+                .OrderByDescending(h => h.CreateDate)
                 .ToListAsync();
         return [];
     }
@@ -261,22 +288,13 @@ public class ZincirDbService : IDatabaseService
                 .Where(t => isCompleted == t.IsCompleted)
                 .Where(t => !isPinned || t.IsPinned)
                 .Where(todo => 
-                        (!isImportant && !isUrgent) || // Koşul 1: Hiçbiri önemli veya acil değilse
-                        (isImportant && isUrgent && todo.IsImportant && todo.IsUrgent) || // Koşul 2: Her ikisi de önemli ve acil ise
-                        (isImportant && !isUrgent && todo.IsImportant) || // Koşul 3: Yalnızca önemli ise
-                        (!isImportant && isUrgent && todo.IsUrgent) // Koşul 4: Yalnızca acil ise
+                        (!isImportant && !isUrgent) || 
+                        (isImportant && isUrgent && todo.IsImportant && todo.IsUrgent) ||
+                        (isImportant && !isUrgent && todo.IsImportant) || 
+                        (!isImportant && isUrgent && todo.IsUrgent)
                 )
                 .ToListAsync();
         return [];
-    }
-
-    private static bool GetTodoPriority(bool isImportant, bool isUrgent, bool tIsImportant, bool tIsUrgent)
-    {
-        if (!isImportant && !isUrgent) return true;
-        if (isImportant && isUrgent) return tIsImportant && tIsUrgent;
-        if (isImportant && tIsImportant) return true;
-        if (isUrgent && tIsUrgent) return true;
-        return false;
     }
     
     public async Task<List<TodoModel>> GetSubTodosAsync(
@@ -293,7 +311,12 @@ public class ZincirDbService : IDatabaseService
                 .Where(t => t.ParentTodoId == parentTodoId)
                 .Where(t => isCompleted == t.IsCompleted)
                 .Where(t => !isPinned || t.IsPinned)
-                .Where(t => !isImportant && !isUrgent || (isImportant &&  t.IsImportant) || (isUrgent && t.IsUrgent))
+                .Where(todo => 
+                    (!isImportant && !isUrgent) || 
+                    (isImportant && isUrgent && todo.IsImportant && todo.IsUrgent) ||
+                    (isImportant && !isUrgent && todo.IsImportant) || 
+                    (!isImportant && isUrgent && todo.IsUrgent)
+                )
                 .ToListAsync();
         return [];
     }

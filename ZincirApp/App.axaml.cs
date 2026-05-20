@@ -99,7 +99,7 @@ public class App : Application
         collection.AddSingleton<TodayViewModel>();
         collection.AddSingleton<TodoViewModel>();
         collection.AddSingleton<HabitViewModel>();
-        collection.AddSingleton<PomodoroViewModel>();
+        collection.AddTransient<PomodoroViewModel>();
         collection.AddSingleton<PomodoroHistoryViewModel>();
         collection.AddTransient<TodoEditViewModel>();
         collection.AddTransient<HabitEditViewModel>();

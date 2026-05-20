@@ -12,6 +12,7 @@ public class AppSettings
     public DateTime? CurrentSessionStartTime { get; set; }
     public TimeSpan AccumulatedTime { get; set; } = TimeSpan.Zero;
     public DateTime? NotificationScheduleDate { get; set; }
-    public string SessionTitleText { get; set; } = "";
+    public Guid? HabitSessionId { get; set; }
+    public Guid? TodoSessionId { get; set; }
     public string? HashSignature { get; set; }
 }

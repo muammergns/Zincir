@@ -31,6 +31,7 @@ public partial class MainView : UserControl
             var im = InsetsManager.SafeAreaPadding;
             Padding = new Thickness(im.Left + 4, im.Top + 4, im.Right + 4, im.Bottom + 4) ;
             InsetsManager.SafeAreaChanged += SafeAreaChanged;
+            DummyCalendar.SelectedDate = DateTime.Now;
         };
         Unloaded += (_, _) =>
         {
