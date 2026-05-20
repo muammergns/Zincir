@@ -8,6 +8,5 @@ public class HabitLogModel
     public Guid HabitId { get; set; }
     public DateTime Date { get; set; } = DateTime.Now;
     public double Value { get; set; }
-    public TimeSpan? Duration { get; set; }
     public virtual HabitModel? Habit { get; set; }
 }

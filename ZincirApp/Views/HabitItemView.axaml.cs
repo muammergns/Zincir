@@ -1,6 +1,5 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+using Avalonia.Interactivity;
 
 namespace ZincirApp.Views;
 
@@ -10,4 +9,5 @@ public partial class HabitItemView : UserControl
     {
         InitializeComponent();
     }
+    
 }

@@ -1,16 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using Avalonia.Controls;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Material.Icons;
+using ZincirApp.Messages;
 using ZincirApp.Models;
 
 namespace ZincirApp.ViewModels;
 
 public sealed partial class HabitItemViewModel : ObservableObject
 {
-
     public HabitModel Model { get; }
     [ObservableProperty] private string _title;
     [ObservableProperty] private IBrush? _baseColor;
@@ -41,6 +45,7 @@ public sealed partial class HabitItemViewModel : ObservableObject
     [ObservableProperty] private string _columnLeftUnit;
     [ObservableProperty] private string _columnCenterUnit;
     [ObservableProperty] private string _columnRightUnit;
+    [ObservableProperty] private double _addHabitLogValue;
     
     public DateTime CurrentPeriodEndDate { get; }
     
@@ -116,6 +121,7 @@ public sealed partial class HabitItemViewModel : ObservableObject
         CurrentPeriodEndDate = periodDates.LastOrDefault();
         BaseColor = GetBrush(BaseColors[typeIndex], 0.2);
         TargetValueText = model.TargetValue?.ToString("F0") ?? string.Empty;
+        AddHabitLogValue = Convert.ToDouble(model.TargetValue ?? 0);
         UnitText = model.Unit;
         CurrentProgressValueText = model.TargetValue is not null ?  periodTotalValue.ToString("F0") : string.Empty;
         CheckButtonBackgroundColor = GetBrush(BaseColors[typeIndex], 0.2);
@@ -139,65 +145,29 @@ public sealed partial class HabitItemViewModel : ObservableObject
         ColumnRightValue = model.TargetEndDate is not null ? 
             GetLastPeriodCount(CurrentPeriodEndDate, model).ToString() : 
             (periodDates.Count - 1).ToString();
-        switch (typeIndex)
+        ColumnCenterUnit = typeIndex is 1 or 3 ? UnitText : "kez";
+        ColumnLeftUnit = typeIndex switch
         {
-            case 0:
-                ColumnLeftValue = GetMaxStrike(periodDates, model.HabitLogs).ToString();
-                ColumnLeftUnit = model.PeriodValue > 1 ? "dönem" : periodUnit;
-                ColumnCenterValue = model.HabitLogs.Count.ToString();
-                ColumnCenterUnit = "kez";
-                break;
-            case 1:
-                ColumnLeftValue = GetTotalLogValue(model).ToString();
-                ColumnLeftUnit = UnitText;
-                ColumnCenterValue = ((periodDates.Count - 1) * (model.TargetValue ?? 0)).ToString("F0"); 
-                ColumnCenterUnit = UnitText;
-                break;
-            case 2:
-                ColumnLeftValue = GetMaxStrike(periodDates, model.HabitLogs).ToString();
-                ColumnLeftUnit = model.PeriodValue > 1 ? "dönem" : periodUnit;
-                ColumnCenterValue = model.HabitLogs.Count.ToString();
-                ColumnCenterUnit = "kez";
-                break;
-            case 3:
-                ColumnLeftValue = GetTotalLogValue(model).ToString();
-                ColumnLeftUnit = UnitText;
-                ColumnCenterValue = ((periodDates.Count - 1) * (model.TargetValue ?? 0)).ToString("F0"); 
-                ColumnCenterUnit = UnitText;
-                break;
-            case 4:
-                ColumnLeftValue = model.HabitLogs.Count(l => (int)l.Value == 1).ToString();
-                ColumnLeftUnit = "kez";
-                ColumnCenterValue = model.HabitLogs.Count(l => (int)l.Value == 0).ToString();
-                ColumnCenterUnit = "kez";
-                break;
-            case 5:
-                ColumnLeftValue = GetMedianValue(model).ToString();
-                ColumnLeftUnit = UnitText;
-                ColumnCenterValue = model.HabitLogs.Count(l => (int)l.Value > (model.TargetValue ?? 0)).ToString();
-                ColumnCenterUnit = "kez";
-                break;
-            case 6:
-                ColumnLeftValue = model.HabitLogs.Count(l => (int)l.Value == 1).ToString();
-                ColumnLeftUnit = "kez";
-                ColumnCenterValue = model.HabitLogs.Count(l => (int)l.Value == 0).ToString();
-                ColumnCenterUnit = "kez";
-                break;
-            case 7:
-                ColumnLeftValue = GetMedianValue(model).ToString();
-                ColumnLeftUnit = UnitText;
-                ColumnCenterValue = model.HabitLogs.Count(l => (int)l.Value > (model.TargetValue ?? 0)).ToString();
-                ColumnCenterUnit = "kez";
-                break;
-            default: 
-                ColumnLeftValue = string.Empty;
-                ColumnLeftUnit = string.Empty;
-                ColumnCenterValue = string.Empty;
-                ColumnCenterUnit = string.Empty;
-                ColumnRightValue = string.Empty;
-                ColumnRightUnit = string.Empty;
-                break;
-        }
+            0 or 2 => model.PeriodValue > 1 ? "dönem" : periodUnit,
+            1 or 3 or 5 or 7 => UnitText,
+            _ => "kez"
+        };
+        ColumnLeftValue = typeIndex switch
+        {
+            0 or 2 => GetMaxStrike(periodDates, model.HabitLogs, h => (int)h.Value==1).ToString(),
+            1 or 3 => model.HabitLogs.Sum(logModel => logModel.Value).ToString("F0"),
+            4 or 6 => GetTotalStrike(periodDates, model.HabitLogs, h => (int)h.Value==1).ToString(),
+            5 or 7 => GetMedianValue(periodDates, model.HabitLogs).ToString(),
+            _ => string.Empty
+        };
+        ColumnCenterValue = typeIndex switch
+        {
+            0 or 2 => GetTotalStrike(periodDates, model.HabitLogs).ToString(),
+            1 or 3 => ((periodDates.Count - 1) * (model.TargetValue ?? 0)).ToString("F0"),
+            4 or 6 => GetTotalStrike(periodDates, model.HabitLogs, h => (int)h.Value==0).ToString(),
+            5 or 7 => GetTotalStrike(periodDates, model.HabitLogs, l => (int)l.Value > (model.TargetValue ?? 0)).ToString(),
+            _ => string.Empty
+        };
     }
 
     private static string GetPomodoroSpendTimeText(HabitModel model, List<DateTime> periodDates)
@@ -218,13 +188,7 @@ public sealed partial class HabitItemViewModel : ObservableObject
             _ => ""
         };
     }
-
-    private static int GetMedianValue(HabitModel model)
-    {
-        var totalValue = GetTotalLogValue(model);
-        var medianValue = model.HabitLogs.Count > 0 ? totalValue / model.HabitLogs.Count : 0;
-        return medianValue;
-    }
+    
 
     private static int GetPeriodTotalValue(HabitModel model, List<DateTime> periodDates)
     {
@@ -234,18 +198,10 @@ public sealed partial class HabitItemViewModel : ObservableObject
         return Convert.ToInt32(periodTotalValue);
     }
 
-
-
     private static bool GetIsCurrentPeriodCompleted(HabitModel model, int periodTotalValue)
     {
         var isCompleted = model.TargetValue is not null ? periodTotalValue >= (double)model.TargetValue : periodTotalValue > 0;
         return isCompleted;
-    }
-
-    private static int GetTotalLogValue(HabitModel model)
-    {
-        var totalValue = model.HabitLogs.Sum(logModel => logModel.Value);
-        return Convert.ToInt32(totalValue);
     }
 
     private static int GetTypeIndex(HabitModel model)
@@ -259,23 +215,58 @@ public sealed partial class HabitItemViewModel : ObservableObject
             typeIndex |= 1 << 2;
         return typeIndex;
     }
-    
-    private static bool HasLogInDateRange(DateTime rangeStartDate, DateTime rangeEndDate, ICollection<HabitLogModel> habitLogs)
-    {
-        return habitLogs.Any(logDate => logDate.Date >= rangeStartDate && logDate.Date < rangeEndDate);
-    }
 
-    private static int GetMaxStrike(IReadOnlyList<DateTime> periodDates, ICollection<HabitLogModel> habitLogs)
+    private static List<HabitLogModel> GetLogsInDateRange(DateTime rangeStartDate, DateTime rangeEndDate,
+        ICollection<HabitLogModel> habitLogs)
+    {
+        return habitLogs.Where(h => h.Date >= rangeStartDate && h.Date <= rangeEndDate).ToList();
+    }
+    
+    
+    private static int GetMedianValue(IReadOnlyList<DateTime> periodDates, ICollection<HabitLogModel> habitLogs,
+        Expression<Func<HabitLogModel, double>>? expression = null)
     {
         ArgumentNullException.ThrowIfNull(periodDates);
         if (periodDates.Count < 2) throw new ArgumentException(null, nameof(periodDates));
+        expression ??= item => item.Value;
+        var compiledExpression = expression.Compile();
+        var totalValue = habitLogs.Sum(compiledExpression);
+        return Convert.ToInt32(totalValue / (periodDates.Count - 1));
+    }
 
+    private static int GetTotalStrike(IReadOnlyList<DateTime> periodDates, ICollection<HabitLogModel> habitLogs,
+        Expression<Func<HabitLogModel, bool>>? expression = null)
+    {
+        ArgumentNullException.ThrowIfNull(periodDates);
+        if (periodDates.Count < 2) throw new ArgumentException(null, nameof(periodDates));
+        var totalStrike = 0;
+        expression ??= item => true;
+        var compiledExpression = expression.Compile();
+        for (var periodIndex = 0; periodIndex < periodDates.Count - 1; periodIndex++)
+        {
+            var logs = GetLogsInDateRange(periodDates[periodIndex], periodDates[periodIndex + 1], habitLogs);
+            if (logs.Any(compiledExpression))
+            {
+                totalStrike++;
+            }
+        }
+        return totalStrike;
+    }
+
+    private static int GetMaxStrike(IReadOnlyList<DateTime> periodDates, ICollection<HabitLogModel> habitLogs, 
+        Expression<Func<HabitLogModel, bool>>? expression = null)
+    {
+        ArgumentNullException.ThrowIfNull(periodDates);
+        if (periodDates.Count < 2) throw new ArgumentException(null, nameof(periodDates));
+        expression ??= item => true;
+        var compiledExpression = expression.Compile();
         var maxConsecutiveStreak = 0;
         var currentConsecutiveStreak = 0;
 
         for (var periodIndex = 0; periodIndex < periodDates.Count - 1; periodIndex++)
         {
-            if (HasLogInDateRange(periodDates[periodIndex], periodDates[periodIndex + 1], habitLogs))
+            var logs = GetLogsInDateRange(periodDates[periodIndex], periodDates[periodIndex + 1], habitLogs);
+            if (logs.Any(compiledExpression))
             {
                 currentConsecutiveStreak++;
                 maxConsecutiveStreak = Math.Max(maxConsecutiveStreak, currentConsecutiveStreak);
@@ -332,7 +323,35 @@ public sealed partial class HabitItemViewModel : ObservableObject
             $"{remainingTime.Minutes:D2} dk {remainingTime.Seconds:D2} sn";
     }
 
+    [RelayCommand]
+    private void AddPlusHabitLog(object? sender)
+    {
+        if (sender is Button button)
+        {
+            button.Flyout?.Hide();
+        }
+        WeakReferenceMessenger.Default.Send(new AddPlusHabitLogMessage(this));
+    }
     
+    [RelayCommand]
+    private void AddMinusHabitLog(object? sender)
+    {
+        if (sender is Button button)
+        {
+            button.Flyout?.Hide();
+        }
+        WeakReferenceMessenger.Default.Send(new AddMinusHabitLogMessage(this));
+    }
+    
+    [RelayCommand]
+    private void AddValueHabitLog(object? sender)
+    {
+        if (sender is Button button)
+        {
+            button.Flyout?.Hide();
+        }
+        WeakReferenceMessenger.Default.Send(new AddValueHabitLogMessage(this));
+    }
 
 }
 

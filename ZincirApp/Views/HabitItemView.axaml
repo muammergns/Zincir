@@ -17,13 +17,43 @@
                     <Button Padding="4" Width="50" Height="50" CornerRadius="25" BorderThickness="2" 
                             Foreground="{Binding (vm:HabitItemViewModel).CheckButtonForegroundColor}"
                             BorderBrush="{Binding (vm:HabitItemViewModel).CheckButtonBorderColor}" 
+                            Name="AddHabitLogButton"
                             Background="{Binding (vm:HabitItemViewModel).CheckButtonBackgroundColor}">
-                        <Viewbox>
-                            <Grid>
-                                <avalonia:MaterialIcon Margin="4"
-                                        Kind="{Binding (vm:HabitItemViewModel).CheckButtonKind}" />
-                            </Grid>
-                        </Viewbox>
+                        <Button.Content>
+                            <Viewbox>
+                                <Grid>
+                                    <avalonia:MaterialIcon Margin="4"
+                                                           Kind="{Binding (vm:HabitItemViewModel).CheckButtonKind}" />
+                                </Grid>
+                            </Viewbox>
+                        </Button.Content>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft" x:DataType="vm:HabitItemViewModel">
+                                <Grid>
+                                    <Border IsVisible="{Binding (vm:HabitItemViewModel).IsTickType}">
+                                        <WrapPanel>
+                                            <Button Command="{Binding (vm:HabitItemViewModel).AddPlusHabitLogCommand}"
+                                                    Classes="flat" CommandParameter="{Binding $parent[Popup].PlacementTarget}">
+                                                <avalonia:MaterialIcon Kind="Plus"/>
+                                            </Button>
+                                            <Button Command="{Binding (vm:HabitItemViewModel).AddMinusHabitLogCommand}"
+                                                    Classes="flat" CommandParameter="{Binding $parent[Popup].PlacementTarget}">
+                                                <avalonia:MaterialIcon Kind="Minus"/>
+                                            </Button>
+                                        </WrapPanel>
+                                    </Border>
+                                    <Border IsVisible="{Binding (vm:HabitItemViewModel).IsValueType}">
+                                        <WrapPanel>
+                                            <NumericUpDown Value="{Binding (vm:HabitItemViewModel).AddHabitLogValue}"/>
+                                            <Button Command="{Binding (vm:HabitItemViewModel).AddValueHabitLogCommand}"
+                                                    Classes="flat" CommandParameter="{Binding $parent[Popup].PlacementTarget}">
+                                                <avalonia:MaterialIcon Kind="Tick"/>
+                                            </Button>
+                                        </WrapPanel>
+                                    </Border>
+                                </Grid>
+                            </Flyout>
+                        </Button.Flyout>
                     </Button>
                 </Border>
                 <!-- alışkanlık başlığı -->

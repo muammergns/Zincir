@@ -12,6 +12,7 @@ namespace ZincirApp.Services;
 //cd ZincirApp/
 //dotnet ef migrations add Version_Init --context ZincirDbContext
 //dotnet ef migrations add Version_1_Pomodoro --context ZincirDbContext
+//dotnet ef migrations add Version_2_HabitLog --context ZincirDbContext
 
 public class ZincirDbContextFactory : IDesignTimeDbContextFactory<ZincirDbContext>
 {

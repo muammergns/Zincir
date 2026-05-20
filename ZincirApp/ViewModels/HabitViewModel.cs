@@ -20,6 +20,49 @@ public partial class HabitViewModel : ViewModelBase
         Store = store;
         _navService = navigationService;
         _settingsService = settingsService;
+        WeakReferenceMessenger.Default.Register<AddPlusHabitLogMessage>(this, (_, m) =>
+        {
+            if (m.Model is null) return;
+            if (m.Model.Model.TargetValue is not null) return;
+            Task.Run(async () =>
+            {
+                await Store.AddLogAsync(new HabitLogModel
+                {
+                    Date = DateTime.Now,
+                    HabitId = m.Model.Model.Id,
+                    Value = 1
+                });
+            });
+        });
+        WeakReferenceMessenger.Default.Register<AddMinusHabitLogMessage>(this, (_, m) =>
+        {
+            if (m.Model is null) return;
+            if (m.Model.Model.TargetValue is not null) return;
+            Task.Run(async () =>
+            {
+                await Store.AddLogAsync(new HabitLogModel
+                {
+                    Date = DateTime.Now,
+                    HabitId = m.Model.Model.Id,
+                    Value = 0
+                });
+            });
+        });
+        WeakReferenceMessenger.Default.Register<AddValueHabitLogMessage>(this, (_, m) =>
+        {
+            
+            if (m.Model is null) return;
+            if (m.Model.Model.TargetValue is null) return;
+            Task.Run(async () =>
+            {
+                await Store.AddLogAsync(new HabitLogModel
+                {
+                    Date = DateTime.Now,
+                    HabitId = m.Model.Model.Id,
+                    Value = m.Model.AddHabitLogValue
+                });
+            });
+        });
     }
 
     [RelayCommand]
@@ -56,21 +99,6 @@ public partial class HabitViewModel : ViewModelBase
         Console.WriteLine($@"TODO - habit detay view oluşturmayı unutma: {model.Title}");
     }
     
-    [RelayCommand]
-    private void ShowAddHabitLogView(HabitItemViewModel? model)
-    {
-        if (model is null) return;
-        //_navService.NavigateToSub(model);
-        Console.WriteLine($@"TODO - habit add log view oluşturmayı unutma: {model.Title}");
-        Task.Run(async () =>
-        {
-            await Store.AddLogAsync(new HabitLogModel
-            {
-                Date = DateTime.Now,
-                HabitId = model.Model.Id,
-                Value = 1
-            });
-            _navService.NavigateToSub<HabitEditViewModel>();
-        });
-    }
+
+
 }
